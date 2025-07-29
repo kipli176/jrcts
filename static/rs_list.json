@@ -1,0 +1,408 @@
+{
+    "suggestions": [
+      {
+        "data": "0700070",
+        "value": "0700070 - KLINIK PRATAMA TUNAS HARAPAN"
+      },
+      {
+        "data": "0700051",
+        "value": "0700051 - KLINIK UTAMA BUNGA EMAS"
+      },
+      {
+        "data": "0701037",
+        "value": "0701037 - KLINIK UTAMA SURYA MEDIKA"
+      },
+      {
+        "data": "0701038",
+        "value": "0701038 - KLINIK UTAMA TEJA USADA"
+      },
+      {
+        "data": "0700990",
+        "value": "0700990 - KLINIK/DR PRAKTEK DI KAB. BADUNG"
+      },
+      {
+        "data": "0700994",
+        "value": "0700994 - KLINIK/DR PRAKTEK DI KAB. BANGLI"
+      },
+      {
+        "data": "0701992",
+        "value": "0701992 - KLINIK/DR PRAKTEK DI KAB. BULELENG"
+      },
+      {
+        "data": "0700992",
+        "value": "0700992 - KLINIK/DR PRAKTEK DI KAB. GIANYAR"
+      },
+      {
+        "data": "0701994",
+        "value": "0701994 - KLINIK/DR PRAKTEK DI KAB. JEMBRANA"
+      },
+      {
+        "data": "0700996",
+        "value": "0700996 - KLINIK/DR PRAKTEK DI KAB. KARANGASEM"
+      },
+      {
+        "data": "0700998",
+        "value": "0700998 - KLINIK/DR PRAKTEK DI KAB. KLUNGKUNG"
+      },
+      {
+        "data": "0700988",
+        "value": "0700988 - KLINIK/DR PRAKTEK DI KAB. TABANAN"
+      },
+      {
+        "data": "0700986",
+        "value": "0700986 - KLINIK/DR PRAKTEK DI KOTA DENPASAR"
+      },
+      {
+        "data": "0700072",
+        "value": "0700072 - LEMBONGAN MEDICAL CLINIC"
+      },
+      {
+        "data": "0700989",
+        "value": "0700989 - PUSKESMAS DI KAB. BADUNG"
+      },
+      {
+        "data": "0700993",
+        "value": "0700993 - PUSKESMAS DI KAB. BANGLI"
+      },
+      {
+        "data": "0701991",
+        "value": "0701991 - PUSKESMAS DI KAB. BULELENG"
+      },
+      {
+        "data": "0700991",
+        "value": "0700991 - PUSKESMAS DI KAB. GIANYAR"
+      },
+      {
+        "data": "0701993",
+        "value": "0701993 - PUSKESMAS DI KAB. JEMBRANA"
+      },
+      {
+        "data": "0700995",
+        "value": "0700995 - PUSKESMAS DI KAB. KARANGASEM"
+      },
+      {
+        "data": "0700997",
+        "value": "0700997 - PUSKESMAS DI KAB. KLUNGKUNG"
+      },
+      {
+        "data": "0700987",
+        "value": "0700987 - PUSKESMAS DI KAB. TABANAN"
+      },
+      {
+        "data": "0700985",
+        "value": "0700985 - PUSKESMAS DI KOTA DENPASAR"
+      },
+      {
+        "data": "0700021",
+        "value": "0700021 - RS ARI CANTI, KAB. GIANYAR"
+      },
+      {
+        "data": "0700037",
+        "value": "0700037 - RS BALI HOLISTIK, KAB. TABANAN"
+      },
+      {
+        "data": "0700052",
+        "value": "0700052 - RS BALI INTERNATIONAL HOSPITAL, KOTA DENPASAR"
+      },
+      {
+        "data": "0700126",
+        "value": "0700126 - RS BALI JIMBARAN, KAB. BADUNG"
+      },
+      {
+        "data": "0700056",
+        "value": "0700056 - RS BALI ROYAL, KOTA DENPASAR"
+      },
+      {
+        "data": "0701025",
+        "value": "0701025 - RS BALIMED, KAB. BULELENG"
+      },
+      {
+        "data": "0701036",
+        "value": "0701036 - RS BALIMED, KAB. JEMBRANA"
+      },
+      {
+        "data": "0700058",
+        "value": "0700058 - RS BALIMED, KAB. KARANGASEM"
+      },
+      {
+        "data": "0700057",
+        "value": "0700057 - RS BALIMED, KOTA DENPASAR"
+      },
+      {
+        "data": "0700043",
+        "value": "0700043 - RS BANGLI MEDIKA CANTI (BMC), KAB. BANGLI"
+      },
+      {
+        "data": "0700046",
+        "value": "0700046 - RS BHAKTI RAHAYU, KAB. TABANAN"
+      },
+      {
+        "data": "0700025",
+        "value": "0700025 - RS BHAKTI RAHAYU, KOTA DENPASAR"
+      },
+      {
+        "data": "0700030",
+        "value": "0700030 - RS BHAYANGKARA TRIJATA, KOTA DENPASAR"
+      },
+      {
+        "data": "0700042",
+        "value": "0700042 - RS BIMC KUTA, KAB. BADUNG"
+      },
+      {
+        "data": "0700041",
+        "value": "0700041 - RS BIMC NUSA DUA, KAB. BADUNG"
+      },
+      {
+        "data": "0700008",
+        "value": "0700008 - RS BINTANG, KAB. KLUNGKUNG"
+      },
+      {
+        "data": "0701034",
+        "value": "0701034 - RS BUNDA, KAB. JEMBRANA"
+      },
+      {
+        "data": "0700024",
+        "value": "0700024 - RS DHARMA KERTI, KAB. TABANAN"
+      },
+      {
+        "data": "0700014",
+        "value": "0700014 - RS DHARMA YADNYA, KOTA DENPASAR"
+      },
+      {
+        "data": "0700045",
+        "value": "0700045 - RS FAMILI HUSADA, KAB. GIANYAR"
+      },
+      {
+        "data": "0700054",
+        "value": "0700054 - RS GANESHA, KAB. GIANYAR"
+      },
+      {
+        "data": "0700016",
+        "value": "0700016 - RS GARBA MED, KAB. BADUNG"
+      },
+      {
+        "data": "0700064",
+        "value": "0700064 - RS GIGI DAN MULUT UNIV MAHASARASWATI, KOTA DENPASAR"
+      },
+      {
+        "data": "0700067",
+        "value": "0700067 - RS GRHA BHAKTI MEDIKA, KAB. KLUNGKUNG"
+      },
+      {
+        "data": "0700044",
+        "value": "0700044 - RS JIWA BANGLI, KAB. BANGLI"
+      },
+      {
+        "data": "0701032",
+        "value": "0701032 - RS KARYA DHARMA HUSADA, KAB. BULELENG"
+      },
+      {
+        "data": "0700038",
+        "value": "0700038 - RS KASIH IBU KEDONGANAN, KAB. BADUNG"
+      },
+      {
+        "data": "0700059",
+        "value": "0700059 - RS KASIH IBU SABA, KAB. GIANYAR"
+      },
+      {
+        "data": "0700023",
+        "value": "0700023 - RS KASIH IBU, KAB. TABANAN"
+      },
+      {
+        "data": "0700017",
+        "value": "0700017 - RS KASIH IBU, KOTA DENPASAR"
+      },
+      {
+        "data": "0701035",
+        "value": "0701035 - RS KERTAYASA, KAB. JEMBRANA"
+      },
+      {
+        "data": "0701026",
+        "value": "0701026 - RS KERTHA USADA, KAB. BULELENG"
+      },
+      {
+        "data": "0700068",
+        "value": "0700068 - RS KHUSUS BEDAH DHARMA USADHA SIDHI"
+      },
+      {
+        "data": "0700022",
+        "value": "0700022 - RS MANUABA, KOTA DENPASAR"
+      },
+      {
+        "data": "0700018",
+        "value": "0700018 - RS MATA BALI MANDARA, KOTA DENPASAR"
+      },
+      {
+        "data": "0700063",
+        "value": "0700063 - RS MATA RAMATA, KOTA DENPASAR"
+      },
+      {
+        "data": "0700048",
+        "value": "0700048 - RS MURNI TEGUH TUBAN BALI, KAB. BADUNG"
+      },
+      {
+        "data": "0701030",
+        "value": "0701030 - RS PARAMA SIDHI, KAB. BULELENG"
+      },
+      {
+        "data": "0700047",
+        "value": "0700047 - RS PERMATA HATI, KAB. KLUNGKUNG"
+      },
+      {
+        "data": "0700040",
+        "value": "0700040 - RS PREMAGANA, KAB. GIANYAR"
+      },
+      {
+        "data": "0700031",
+        "value": "0700031 - RS PRIMA MEDIKA, KOTA DENPASAR"
+      },
+      {
+        "data": "0700011",
+        "value": "0700011 - RS PURI RAHARJA, KOTA DENPASAR"
+      },
+      {
+        "data": "0700060",
+        "value": "0700060 - RS SEMARA RATIH, KAB. TABANAN"
+      },
+      {
+        "data": "0701010",
+        "value": "0701010 - RS SHANTI GRAHA, KAB. BULELENG"
+      },
+      {
+        "data": "0700026",
+        "value": "0700026 - RS SILOAM BALI, KAB. BADUNG"
+      },
+      {
+        "data": "0700034",
+        "value": "0700034 - RS SURYA HUSADHA NUSADUA, KAB. BADUNG"
+      },
+      {
+        "data": "0700032",
+        "value": "0700032 - RS SURYA HUSADHA UBUNG, KOTA DENPASAR"
+      },
+      {
+        "data": "0700012",
+        "value": "0700012 - RS SURYA HUSADHA, KOTA DENPASAR"
+      },
+      {
+        "data": "0700003",
+        "value": "0700003 - RS TK.II UDAYANA, KOTA DENPASAR"
+      },
+      {
+        "data": "0701029",
+        "value": "0701029 - RS TNI AD TK.IV SINGARAJA, KAB. BULELENG"
+      },
+      {
+        "data": "0700010",
+        "value": "0700010 - RS UNIVERSITAS UDAYANA, KAB. BADUNG"
+      },
+      {
+        "data": "0700029",
+        "value": "0700029 - RS WISMA PRASHANTI, KAB. TABANAN"
+      },
+      {
+        "data": "0700071",
+        "value": "0700071 - RS. WINDU HUSADA"
+      },
+      {
+        "data": "0700049",
+        "value": "0700049 - RSIA BUNDA DENPASAR"
+      },
+      {
+        "data": "0700065",
+        "value": "0700065 - RSIA CAHAYA BUNDA, KAB. TABANAN"
+      },
+      {
+        "data": "0700035",
+        "value": "0700035 - RSIA HARAPAN BUNDA, KOTA DENPASAR"
+      },
+      {
+        "data": "0700020",
+        "value": "0700020 - RSIA PUCUK PERMATA HATI, KOTA DENPASAR"
+      },
+      {
+        "data": "0700066",
+        "value": "0700066 - RSIA PURI BUNDA, KAB. TABANAN"
+      },
+      {
+        "data": "0700019",
+        "value": "0700019 - RSIA PURI BUNDA, KOTA DENPASAR"
+      },
+      {
+        "data": "0700101",
+        "value": "0700101 - RSU KASNA MEDIKA"
+      },
+      {
+        "data": "0700050",
+        "value": "0700050 - RSU KENAK MEDIKA"
+      },
+      {
+        "data": "0700061",
+        "value": "0700061 - RSUD BALI MANDARA, KOTA DENPASAR"
+      },
+      {
+        "data": "0700007",
+        "value": "0700007 - RSUD KAB. BANGLI"
+      },
+      {
+        "data": "0700009",
+        "value": "0700009 - RSUD KAB. KARANGASEM"
+      },
+      {
+        "data": "0700006",
+        "value": "0700006 - RSUD KAB. KLUNGKUNG"
+      },
+      {
+        "data": "0700004",
+        "value": "0700004 - RSUD KAB. TABANAN"
+      },
+      {
+        "data": "0700028",
+        "value": "0700028 - RSUD MANGUSADA, KAB. BADUNG"
+      },
+      {
+        "data": "0701006",
+        "value": "0701006 - RSUD NEGARA, KAB. JEMBRANA"
+      },
+      {
+        "data": "0700039",
+        "value": "0700039 - RSUD PAYANGAN, KAB. GIANYAR"
+      },
+      {
+        "data": "0700033",
+        "value": "0700033 - RSUD PRATAMA GEMA SANTI, KAB. KLUNGKUNG"
+      },
+      {
+        "data": "0701028",
+        "value": "0701028 - RSUD PRATAMA GIRI EMAS, KAB. BULELENG"
+      },
+      {
+        "data": "0700062",
+        "value": "0700062 - RSUD PRATAMA KUBU, KAB. KARANGASEM"
+      },
+      {
+        "data": "0701027",
+        "value": "0701027 - RSUD PRATAMA TANGGUWISIA, KAB. BULELENG"
+      },
+      {
+        "data": "0700005",
+        "value": "0700005 - RSUD SANJIWANI, KAB. GIANYAR"
+      },
+      {
+        "data": "0701001",
+        "value": "0701001 - RSUD SINGARAJA, KAB. BULELENG"
+      },
+      {
+        "data": "0700036",
+        "value": "0700036 - RSUD SINGASANA, KAB. TABANAN"
+      },
+      {
+        "data": "0700002",
+        "value": "0700002 - RSUD WANGAYA, KOTA DENPASAR"
+      },
+      {
+        "data": "0700001",
+        "value": "0700001 - RSUP PROF DR I,G.N.G NGOERAH"
+      }
+    ]
+  }

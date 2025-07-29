@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel - Proses Klaim {{ korban.nomor_resi }}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-100 via-white to-blue-50 min-h-screen font-[Poppins] text-gray-800">
+
+  <div class="max-w-4xl mx-auto py-10 px-6">
+    <div class="text-center mb-8">
+      <img src="/static/logo.webp" alt="JRCTS Logo" class="max-w-2xl mx-auto mb-3">
+      <h1 class="text-3xl font-bold">Proses Klaim: {{ korban.nomor_resi }}</h1>
+      <p class="text-gray-600 mt-2">Lengkapi dan proses data klaim korban secara bertahap</p>
+    </div>
+
+    <!-- Data Korban -->
+    <div class="bg-white shadow-md rounded-lg p-6 mb-8">
+      <h2 class="text-lg font-semibold mb-4">📋 Data Korban</h2>
+      <ul class="space-y-1 text-sm">
+        <li><strong>Nama:</strong> {{ korban.nama_lengkap }}</li>
+        <li><strong>NIK:</strong> {{ korban.nik }}</li>
+        <li><strong>LP:</strong> {{ korban.nomor_lp or '-' }}</li>
+        <li><strong>Jaminan:</strong> {{ korban.nomor_jaminan or '-' }}</li>
+        <li><strong>Tgl Keluar:</strong> {{ korban.tgl_keluar or '-' }}</li>
+        <li><strong>Status Tagihan:</strong> {{ korban.status_tagihan or '-' }}</li>
+      </ul>
+    </div>
+
+    <!-- Form Proses Langkah -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+
+      <!-- Step 2 -->
+      <form method="post" class="bg-white shadow-md rounded-lg p-6 space-y-3">
+        <input type="hidden" name="step" value="2">
+        <label class="block text-sm font-medium">Nomor LP:</label>
+        <input name="nomor_lp" value="{{ korban.nomor_lp or '' }}" class="w-full border rounded px-3 py-2" {{ 'disabled' if korban.nomor_lp }} />
+        <button class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded" {{ 'disabled' if korban.nomor_lp }}>
+          Simpan LP
+        </button>
+      </form>
+
+      <!-- Step 3 -->
+      <form method="post" class="bg-white shadow-md rounded-lg p-6 space-y-3">
+        <input type="hidden" name="step" value="3">
+        <label class="block text-sm font-medium">Nomor Jaminan (kosongkan jika tidak terjamin):</label>
+        <input name="nomor_jaminan" value="{{ korban.nomor_jaminan or '' }}" class="w-full border rounded px-3 py-2" {{ 'disabled' if korban.nomor_jaminan is not none }} />
+        <button class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded" {{ 'disabled' if korban.nomor_jaminan is not none }}>
+          Simpan Jaminan
+        </button>
+      </form>
+
+      <!-- Step 4 -->
+      <form method="post" class="bg-white shadow-md rounded-lg p-6 space-y-3">
+        <input type="hidden" name="step" value="4">
+        <label class="block text-sm font-medium">Tanggal Keluar Pasien:</label>
+        <input type="date" name="tgl_keluar" value="{{ korban.tgl_keluar or '' }}" class="w-full border rounded px-3 py-2" {{ 'disabled' if korban.tgl_keluar }} />
+        <button class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded" {{ 'disabled' if korban.tgl_keluar }}>
+          Catat Keluar & Tagih
+        </button>
+      </form>
+
+      <!-- Step 6 -->
+      <form method="post" class="bg-white shadow-md rounded-lg p-6 flex flex-col justify-between">
+        <input type="hidden" name="step" value="6">
+        <div class="mb-3">
+          <p class="text-sm font-medium">Proses lanjutan jaminan ke Step 7</p>
+        </div>
+        <button class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded" {{ 'disabled' if korban.status_tagihan == 'DIBAYAR' }}>
+          Proses Jaminan (6–7)
+        </button>
+      </form>
+    </div>
+
+    <!-- Riwayat Status -->
+    <div class="bg-white shadow-md rounded-lg p-6 mb-8">
+      <h2 class="text-lg font-semibold mb-4">📑 Riwayat Status</h2>
+      <ol class="list-decimal pl-5 space-y-1 text-sm">
+        {% for h in riwayat %}
+        <li>
+          [Step {{ h.step }}] {{ h.deskripsi }} 
+          <small class="text-gray-500">({{ h.created_at }})</small>
+        </li>
+        {% endfor %}
+      </ol>
+    </div>
+ 
+    <div class="text-center mt-6">
+        <a href="{{ url_for('admin_list') }}" class="inline-block bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded shadow text-sm">
+            ⇦ Kembali ke Halaman Admin
+        </a>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrasi Korban - JRCTS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
+</head>
+<body class="bg-gradient-to-br from-blue-100 via-white to-blue-50 min-h-screen font-[Poppins] text-gray-800">
+    <style>
+        /* Select2 + Tailwind integration */
+        .select2-container--default .select2-selection--single {
+            width: 100%; height: auto;
+            padding: .5rem .75rem;
+            border: 1px solid #d1d5db; border-radius: .375rem;
+            font-size: .875rem; background: white;
+            box-shadow: 0 1px 2px rgba(0,0,0,.05);
+        }
+        .select2-container--default .select2-selection--single:focus,
+        .select2-container--default .select2-selection--single.select2-selection--focus {
+            outline: none; border-color: #60a5fa;
+            box-shadow: 0 0 0 2px rgba(96,165,250,.5);
+        }
+        .select2-container .select2-selection__arrow { height:100%; right:.75rem; }
+        .select2-dropdown { border:1px solid #d1d5db; border-radius:.375rem; font-size:.875rem; }
+    </style>
+
+    <div class="max-w-3xl mx-auto py-10 px-6">
+        <div class="text-center mb-8">
+            <img src="/static/logo.webp" class="max-w-2xl mx-auto mb-3" alt="JRCTS Logo">
+            <h1 class="text-3xl font-bold">Form Registrasi Korban</h1>
+            <p class="text-gray-600 mt-2">Silakan isi data korban untuk mendaftarkan klaim laka lantas</p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-lg p-6">
+
+            {% if existing_resi %}
+            <div class="mb-4 p-3 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 rounded">
+            <p>Data sudah terdaftar sebelumnya.</p>
+            <p>Nomor Resi: <strong>{{ existing_resi }}</strong></p>
+            <a
+                href="{{ url_for('tracking', nomor_resi=existing_resi) }}"
+                class="mt-2 inline-block text-sm px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 focus:outline-none"
+            >
+                Lacak Sekarang
+            </a>
+            </div>
+
+            {% elif nomor_resi %}
+            <div class="mb-4 p-3 bg-green-50 border-l-4 border-green-500 text-green-700 rounded">
+            <h2 class="text-lg font-semibold mb-1">Registrasi Berhasil!</h2>
+            <p>Nomor Resi Anda: <strong id="resi-text">{{ nomor_resi }}</strong></p>
+            <button
+                onclick="copyResi()"
+                class="mt-2 text-sm px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none"
+            >
+                Copy
+            </button>
+            <p id="copy-status" class="text-sm text-green-600 mt-1 hidden">📋 Disalin!</p>
+
+            <a
+                href="{{ url_for('tracking', nomor_resi=nomor_resi) }}"
+                class="mt-2 inline-block text-sm px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 focus:outline-none"
+            >
+                Lacak Sekarang
+            </a>
+            </div>
+            {% endif %}
+
+
+            <form method="post" id="RegisterForm" class="space-y-5">
+                <!-- CSRF token jika diperlukan -->
+                <input type="hidden" name="csrfmiddlewaretoken" value="">
+
+                <!-- NIK -->
+                <div>
+                    <label for="id_nik" class="block text-sm font-medium mb-1">
+                        NIK <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="id_nik" name="nik" required
+                           class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-400 shadow-sm"/>
+                </div>
+
+                <!-- Nama Lengkap -->
+                <div>
+                    <label for="id_nama_lengkap" class="block text-sm font-medium mb-1">
+                        Nama Lengkap <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="id_nama_lengkap" name="nama_lengkap" required
+                           class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-400 shadow-sm"/>
+                </div>
+
+                <!-- Usia -->
+                <div>
+                    <label for="id_usia" class="block text-sm font-medium mb-1">
+                        Usia <span class="text-red-500">*</span>
+                    </label>
+                    <input type="number" id="id_usia" name="usia" min="0" required
+                           class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-400 shadow-sm"/>
+                </div>
+
+                <!-- Nomor Telepon -->
+                <div>
+                    <label for="id_nomor_telepon" class="block text-sm font-medium mb-1">
+                        Nomor Telepon <span class="text-red-500">*</span>
+                    </label>
+                    <input type="tel" id="id_nomor_telepon" name="nomor_telepon" required
+                           class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-400 shadow-sm"/>
+                </div>
+
+                <!-- Alamat Koordinat -->
+                <div>
+                    <label for="id_alamat_koordinat" class="block text-sm font-medium mb-1">
+                        Alamat Koordinat <span class="text-red-500">*</span>
+                    </label>
+                    <div class="flex gap-2">
+                        <input type="text" id="id_alamat_koordinat" name="alamat_koordinat" required
+                               placeholder="Latitude,Longitude"
+                               class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-400 shadow-sm"/>
+                        <button type="button" onclick="openMapModal()"
+                                class="bg-green-600 text-white px-3 py-1 rounded shadow hover:bg-green-700 focus:outline-none text-sm">
+                            Pilih Lokasi
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tanggal Kecelakaan -->
+                <div>
+                    <label for="id_tgl_kecelakaan" class="block text-sm font-medium mb-1">
+                        Tanggal Kecelakaan <span class="text-red-500">*</span>
+                    </label>
+                    <input type="date" id="id_tgl_kecelakaan" name="tgl_kecelakaan" required
+                           class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-400 shadow-sm"/>
+                </div>
+
+                <!-- Nomor Polisi Kendaraan -->
+                <div>
+                    <label for="id_nopol_kendaraan" class="block text-sm font-medium mb-1">
+                        Nomor Polisi Kendaraan <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="id_nopol_kendaraan" name="nopol_kendaraan" required
+                           placeholder="Contoh: B-1234-CD"
+                           class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-400 shadow-sm"/>
+                </div>
+
+                <!-- RS Tempat Dirawat -->
+                <div>
+                    <label for="rs_tempat_dirawat" class="block text-sm font-medium mb-1">
+                        RS Tempat Dirawat <span class="text-red-500">*</span>
+                    </label>
+                    <select id="rs_tempat_dirawat" name="rs_tempat_dirawat" class="select2 w-full" required>
+                        <option value="" disabled selected>Pilih rumah sakit…</option>
+                    </select>
+                </div>
+
+                <!-- Jenis Rawatan -->
+                <div>
+                    <label for="id_jenis_rawatan" class="block text-sm font-medium mb-1">
+                        Jenis Rawatan <span class="text-red-500">*</span>
+                    </label>
+                    <select id="id_jenis_rawatan" name="jenis_rawatan" required
+                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-400 shadow-sm">
+                        <option value="" disabled selected>Pilih jenis rawatan…</option>
+                        <option value="Rawat Pertama">Rawat Pertama</option>
+                        <option value="Rawat Jalan">Rawat Jalan</option>
+                    </select>
+                </div>
+
+                <!-- Submit -->
+                <div class="text-center">
+                    <button type="submit"
+                            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded shadow">
+                        Kirim &amp; Dapatkan Nomor Resi
+                    </button>
+                </div>
+            </form>
+
+            <!-- Link Pelacakan -->
+            <div class="text-center mt-6">
+                <a href="{{ url_for('tracking') }}"
+                   class="inline-block bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded shadow text-sm">
+                    ➤ Lacak Status Klaim
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Peta -->
+    <div id="mapModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white w-full max-w-xl p-4 rounded shadow-lg relative">
+            <h2 class="text-lg font-semibold mb-2">Pilih Lokasi</h2>
+            <div id="map" class="h-64 w-full rounded mb-4"></div>
+            <div class="flex justify-between">
+                <button onclick="getCurrentLocation()"
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+                    Gunakan Lokasi Sekarang
+                </button>
+                <button onclick="closeMapModal()"
+                        class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet, jQuery & Select2 JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+    // Select2 RS Tempat Dirawat
+    $(function(){
+        $('#rs_tempat_dirawat').select2({
+            placeholder: "Cari rumah sakit...",
+            allowClear: true,
+            ajax: {
+                url: "/static/rs_list.json",
+                dataType: 'json', delay: 250,
+                processResults: data => ({
+                    results: data.suggestions.map(i=>({id:i.value,text:i.value}))
+                }), cache: true
+            },
+            minimumInputLength: 0
+        });
+    });
+
+    // Copy Resi
+    function copyResi(){
+        const txt = document.getElementById('resi-text').innerText;
+        navigator.clipboard.writeText(txt).then(()=>{
+            const s = document.getElementById('copy-status');
+            s.classList.remove('hidden');
+            setTimeout(()=>s.classList.add('hidden'),2000);
+        });
+    }
+
+    // Leaflet Map & Draggable Marker
+    let map, marker;
+    function openMapModal(){
+        document.getElementById('mapModal').classList.remove('hidden');
+        setTimeout(()=>{
+            if(!map){
+                map = L.map('map').setView([-6.2,106.816666],13);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+                    attribution:'© OpenStreetMap contributors'
+                }).addTo(map);
+                map.on('click', e=> setMarkerAndInput(e.latlng.lat,e.latlng.lng));
+            } else {
+                map.invalidateSize();
+            }
+        },200);
+    }
+    function closeMapModal(){
+        document.getElementById('mapModal').classList.add('hidden');
+    }
+    function setMarkerAndInput(lat,lng){
+        const val = `${lat.toFixed(6)},${lng.toFixed(6)}`;
+        if(marker){
+            marker.setLatLng([lat,lng]);
+        } else {
+            marker = L.marker([lat,lng],{draggable:true}).addTo(map);
+            marker.on('dragend', e=>{
+                const p = e.target.getLatLng();
+                setMarkerAndInput(p.lat,p.lng);
+            });
+        }
+        document.getElementById('id_alamat_koordinat').value = val;
+    }
+    function getCurrentLocation(){
+        if(navigator.geolocation){
+            navigator.geolocation.getCurrentPosition(pos=>{
+                const {latitude:lat,longitude:lng}=pos.coords;
+                map.setView([lat,lng],16);
+                setMarkerAndInput(lat,lng);
+                closeMapModal();
+            }, ()=>alert("Tidak dapat mengambil lokasi."));
+        } else {
+            alert("Geolocation tidak didukung.");
+        }
+    }
+
+    // Auto-format Nopol & form validation
+    document.addEventListener('DOMContentLoaded',()=>{
+        const vehicleInput = document.getElementById("id_nopol_kendaraan");
+        vehicleInput.addEventListener("input", e=>{
+            let raw = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,"");
+            const m = raw.match(/^([A-Z]{0,2})(\d{0,4})([A-Z]{0,3})$/);
+            if(m){
+                let f = m[1];
+                if(m[2]) f += "-" + m[2];
+                if(m[3]) f += "-" + m[3];
+                e.target.value = f.trim();
+            } else e.target.value = raw;
+        });
+        document.getElementById("RegisterForm").addEventListener("submit",e=>{
+            const v = vehicleInput.value.trim().toUpperCase();
+            if(!/^([A-Z]{1,2})-(\d{1,4})(-[A-Z]{1,3})?$/.test(v)){
+                e.preventDefault();
+                alert("Format nomor polisi tidak valid.\nContoh: B-1234-CD");
+                vehicleInput.focus();
+            }
+        });
+    });
+    </script>
+</body>
+</html>

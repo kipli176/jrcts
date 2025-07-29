@@ -1,0 +1,115 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lacak Klaim - JRCTS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-100 via-white to-blue-50 min-h-screen font-[Poppins] text-gray-800">
+
+<div class="max-w-3xl mx-auto py-10 px-6">
+    <div class="text-center mb-8">
+        <img src="/static/logo.webp" class="max-w-2xl mx-auto mb-3" alt="JRCTS Logo">
+        <h1 class="text-3xl font-bold">Lacak Status Klaim</h1>
+        <p class="text-gray-600 mt-2">Masukkan nomor resi Anda untuk melihat progres klaim</p>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <form method="get" action="{{ url_for('tracking') }}" class="space-y-5">
+            <div>
+                <label for="nomor_resi" class="block text-sm font-medium mb-1">
+                    Nomor Resi <span class="text-red-500">*</span>
+                </label>
+                <input
+                    type="text"
+                    id="nomor_resi"
+                    name="nomor_resi"
+                    value="{{ request.args.get('nomor_resi', '') }}"
+                    placeholder="JR-CTS-20250729-1"
+                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm"
+                />
+            </div>
+            {% if error %}
+            <div class="bg-red-100 text-red-700 p-3 rounded">
+                {{ error }}
+            </div>
+            {% endif %}
+            <div>
+                <button
+                    type="submit"
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded shadow"
+                >
+                    Cek Status
+                </button>
+            </div>
+        </form>
+    </div>
+
+    {% if korban %}
+
+    {% if status_kendaraan %}
+    <div class="mt-6 p-6 rounded-lg shadow border-l-4 {% if status_kendaraan == 'LUNAS' %}border-green-500 bg-green-50{% else %}border-red-500 bg-red-50{% endif %}">
+        <h3 class="text-lg font-semibold mb-2">Informasi Kendaraan {{ nopol }}</h3>
+        <p class="text-sm">
+            <span class="font-medium">Status:</span>
+            <span class="{% if status_kendaraan == 'LUNAS' %}text-green-700{% else %}text-red-700{% endif %}">
+                {{ status_kendaraan }}
+            </span>
+        </p>
+        {% if akhir_transaksi %}
+        <p class="text-sm mt-1">
+            <span class="font-medium">Transaksi Terakhir (Akhir):</span> {{ akhir_transaksi }}
+        </p>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="mt-6 bg-white rounded-lg shadow p-6">
+        <h2 class="text-lg font-semibold text-gray-800 mb-2">Informasi Korban</h2>
+        <ul class="text-sm text-gray-700 space-y-1">
+            <li><strong>Nomor Resi:</strong> {{ korban.nomor_resi }}</li>
+            <li><strong>Nama:</strong> {{ korban.nama_lengkap }}</li>
+            <li><strong>NIK:</strong> {{ korban.nik }}</li>
+            <li><strong>Tanggal Registrasi:</strong>
+                {{ korban.created_at }}
+            </li>
+        </ul>
+    </div>
+
+    <div class="mt-6 p-6 rounded-lg shadow border-l-4 border-yellow-500 bg-yellow-50">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Riwayat Status</h3>
+        <ol class="relative border-l-2 border-blue-500 pl-4 space-y-4">
+            {% for status in riwayat %}
+            <li class="ml-2">
+                <div class="absolute w-4 h-4 bg-blue-500 rounded-full -left-2 border-2 border-white"></div>
+                <div>
+                    <p class="text-sm text-gray-500">
+                        {{ status.created_at }}
+                    </p>
+                    <p class="font-semibold text-gray-700">{{ status.deskripsi }}</p>
+                    {% if status.nomor_dokumen %}
+                    <p class="text-xs text-gray-500 italic">Dokumen: {{ status.nomor_dokumen }}</p>
+                    {% endif %}
+                </div>
+            </li>
+            {% endfor %}
+        </ol>
+    </div>
+
+    {% endif %}
+
+    <div class="text-center mt-6">
+        <a
+            href="{{ url_for('registrasi') }}"
+            class="inline-block bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded shadow text-sm"
+        >
+            ⇦ Kembali ke Registrasi
+        </a>
+    </div>
+</div>
+
+</body>
+</html>

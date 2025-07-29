@@ -1,0 +1,89 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel - Daftar Klaim</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css"/>
+</head>
+<body class="bg-gradient-to-br from-blue-100 via-white to-blue-50 min-h-screen font-[Poppins] text-gray-800">
+
+<div class="max-w-7xl mx-auto py-10 px-6">
+    <div class="text-center mb-8">
+        <img src="/static/logo.webp" alt="JRCTS Logo" class="max-w-2xl mx-auto mb-3">
+        <h1 class="text-3xl font-bold">Panel: Daftar Klaim</h1>
+        <p class="text-gray-600 mt-2">Kelola semua klaim yang masuk di sistem</p>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <table id="korbanTable" class="stripe hover table-auto w-full">
+            <thead>
+                <tr class="bg-gray-100">
+                    <th class="px-4 py-2">Resi</th>
+                    <th class="px-4 py-2">Nama</th>
+                    <th class="px-4 py-2">Nomor LP</th>
+                    <th class="px-4 py-2">Nomor Jaminan</th>
+                    <th class="px-4 py-2">Step</th>
+                    <th class="px-4 py-2">Status Tagihan</th>
+                    <th class="px-4 py-2">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for k in korban_list %}
+                <tr class="hover:bg-gray-50">
+                    <td class="border-t px-4 py-3">{{ k.nomor_resi }}</td>
+                    <td class="border-t px-4 py-3">{{ k.nama_lengkap }}</td>
+                    <td class="border-t px-4 py-3">{{ k.nomor_lp or '—' }}</td>
+                    <td class="border-t px-4 py-3">{{ k.nomor_jaminan or '—' }}</td>
+                    <td class="border-t px-4 py-3">{{ k.step or '—' }}</td>
+                    <td class="border-t px-4 py-3">{{ k.status_tagihan or '—' }}</td>
+                    <td class="border-t px-4 py-3 space-x-2">
+                        <a href="{{ url_for('admin_detail', nomor_resi=k.nomor_resi) }}"
+                           class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded">
+                            Proses
+                        </a>
+                        <form method="post" action="{{ url_for('admin_delete', nomor_resi=k.nomor_resi) }}" class="inline-block">
+                            <button type="submit" onclick="return confirm('Hapus klaim ini?');"
+                                    class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">
+                                Hapus
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- jQuery & DataTables JS -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('#korbanTable').DataTable({
+        responsive: true,
+        language: {
+            search: "Cari:",
+            lengthMenu: "Tampilkan _MENU_ entri",
+            info: "Menampilkan _START_ hingga _END_ dari _TOTAL_ entri",
+            paginate: {
+                first: "Pertama",
+                last: "Terakhir",
+                next: "Berikutnya",
+                previous: "Sebelumnya"
+            }
+        }
+    });
+});
+</script>
+
+</body>
+</html>
+
