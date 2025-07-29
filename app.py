@@ -174,6 +174,7 @@ def registrasi():
     # GET: tampilkan form kosong
     return render_template('register.html')
 
+@app.route('/')
 @app.route('/tracking')
 def tracking():
     nomor = request.args.get('nomor_resi', '').strip()
@@ -381,65 +382,6 @@ def admin_reset(nomor_resi):
     db.commit()
     return redirect(url_for('registrasi'))
 
-# ========== TEMPLATES ========== 
- 
-
-admin_detail_html = """
-<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Admin Proses {{ korban.nomor_resi }}</title><script src="https://cdn.tailwindcss.com"></script></head>
-<body class="p-6 font-[Poppins]">
-  <h1 class="text-2xl font-bold mb-4">Proses Klaim: {{ korban.nomor_resi }}</h1>
-  <div class="bg-gray-50 p-4 rounded mb-6">
-    <h2 class="font-semibold mb-2">Data Korban</h2>
-    <ul class="space-y-1 text-sm">
-      <li><strong>Nama:</strong> {{ korban.nama_lengkap }}</li>
-      <li><strong>NIK:</strong> {{ korban.nik }}</li>
-      <li><strong>LP:</strong> {{ korban.nomor_lp or '-' }}</li>
-      <li><strong>Jaminan:</strong> {{ korban.nomor_jaminan or '-' }}</li>
-      <li><strong>Tgl Keluar:</strong> {{ korban.tgl_keluar or '-' }}</li>
-      <li><strong>Status Tagihan:</strong> {{ korban.status_tagihan or '-' }}</li>
-    </ul>
-  </div>
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-    <!-- Step 2 -->
-    <form method="post">
-      <input type="hidden" name="step" value="2">
-      <label class="block mb-1">Nomor LP:</label>
-      <input name="nomor_lp" value="{{ korban.nomor_lp or '' }}" class="w-full border p-2 rounded mb-2" {{ 'disabled' if korban.nomor_lp }}/>
-      <button class="w-full bg-blue-500 text-white p-2 rounded" {{ 'disabled' if korban.nomor_lp }}>Simpan LP</button>
-    </form>
-    <!-- Step 3 -->
-    <form method="post">
-      <input type="hidden" name="step" value="3">
-      <label class="block mb-1">Nomor Jaminan (kosongkan jika tidak terjamin):</label>
-      <input name="nomor_jaminan" value="{{ korban.nomor_jaminan or '' }}" class="w-full border p-2 rounded mb-2" {{ 'disabled' if korban.nomor_jaminan is not none }}/>
-      <button class="w-full bg-blue-500 text-white p-2 rounded" {{ 'disabled' if korban.nomor_jaminan is not none }}>Simpan Jaminan</button>
-    </form>
-    <!-- Step 4 -->
-    <form method="post">
-      <input type="hidden" name="step" value="4">
-      <label class="block mb-1">Tanggal Keluar Pasien:</label>
-      <input type="date" name="tgl_keluar" value="{{ korban.tgl_keluar or '' }}" class="w-full border p-2 rounded mb-2" {{ 'disabled' if korban.tgl_keluar }}/>
-      <button class="w-full bg-blue-500 text-white p-2 rounded" {{ 'disabled' if korban.tgl_keluar }}>Catat Keluar & Tagih</button>
-    </form>
-    <!-- Step 6 -->
-    <form method="post">
-      <input type="hidden" name="step" value="6">
-      <button class="w-full bg-blue-500 text-white p-2 rounded" {{ 'disabled' if korban.status_tagihan=='DIBAYAR' }}>Proses Jaminan (6-7)</button>
-    </form>
-  </div>
-  <h2 class="text-xl font-semibold mb-2">Riwayat Status</h2>
-  <ol class="list-decimal pl-5 space-y-1 mb-6">
-    {% for h in riwayat %}
-    <li>[Step {{ h.step }}] {{ h.deskripsi }} <small class="text-gray-500">({{ h.created_at }})</small></li>
-    {% endfor %}
-  </ol>
-  <a href="{{ url_for('registrasi') }}">
-    <button class="text-red-600">Step 9: Register Ulang</button>
-  </a>
-</body></html>
-"""
 
 if __name__ == '__main__':
     # app.run(debug=True)
