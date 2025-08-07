@@ -214,21 +214,48 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const jenisRawatan = urlParams.get('jenis_rawatan'); // ambil dari ?jenis_rawatan=
+console.log(jenisRawatan);
+    if (jenisRawatan) {
+        const select = document.getElementById('id_jenis_rawatan');
+        
+        // pastikan option ada
+        const optionExists = Array.from(select.options).some(opt => opt.value === jenisRawatan);
+        if (optionExists) {
+            select.value = jenisRawatan;
+        }
+    }
+});
+</script>
     <script>
     // Select2 RS Tempat Dirawat
-    $(function(){
+    $(function () {
         $('#rs_tempat_dirawat').select2({
             placeholder: "Cari rumah sakit...",
             allowClear: true,
             ajax: {
                 url: "/static/rs_list.json",
-                dataType: 'json', delay: 250,
-                processResults: data => ({
-                    results: data.suggestions.map(i=>({id:i.value,text:i.value}))
-                }), cache: true
+                dataType: 'json',
+                delay: 250,
+                processResults: function (data, params) {
+                    var term = params.term ? params.term.toLowerCase() : "";
+                    var results = data.suggestions
+                        .filter(item => item.value.toLowerCase().includes(term))
+                        .map(item => ({
+                            id: item.value,  // <- nama rumah sakit sebagai value
+                            text: item.value
+                        }));
+                    return { results: results };
+                },
+                cache: true
             },
             minimumInputLength: 0
         });
+
     });
 
     // Copy Resi

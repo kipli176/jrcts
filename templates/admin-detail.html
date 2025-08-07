@@ -34,46 +34,101 @@
     <!-- Form Proses Langkah -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
 
-      <!-- Step 2 -->
-      <form method="post" class="bg-white shadow-md rounded-lg p-6 space-y-3">
-        <input type="hidden" name="step" value="2">
-        <label class="block text-sm font-medium">Nomor LP:</label>
-        <input name="nomor_lp" value="{{ korban.nomor_lp or '' }}" class="w-full border rounded px-3 py-2" {{ 'disabled' if korban.nomor_lp }} />
-        <button class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded" {{ 'disabled' if korban.nomor_lp }}>
+    <!-- Step 2 -->
+    <form method="post" class="bg-white shadow-md rounded-lg p-6 space-y-3">
+      <input type="hidden" name="step" value="2">
+
+      <label class="block text-sm font-medium">Nomor LP:</label>
+      <input name="nomor_lp" value="{{ korban.nomor_lp or '' }}" class="w-full border rounded px-3 py-2 bg-gray-100" {{ 'disabled' if korban.nomor_lp }}/>
+
+      <button type="submit" class="w-full py-2 rounded text-white 
+      {{ 'bg-blue-500 hover:bg-blue-600' if not korban.nomor_lp else 'bg-gray-400 cursor-not-allowed opacity-50' }}" {{ 'disabled' if korban.nomor_lp }}>
+        {% if korban.nomor_lp %}
+          ✅ Disimpan
+        {% else %}
           Simpan LP
-        </button>
-      </form>
+        {% endif %}
+      </button>
+    </form>
 
-      <!-- Step 3 -->
-      <form method="post" class="bg-white shadow-md rounded-lg p-6 space-y-3">
-        <input type="hidden" name="step" value="3">
-        <label class="block text-sm font-medium">Nomor Jaminan (kosongkan jika tidak terjamin):</label>
-        <input name="nomor_jaminan" value="{{ korban.nomor_jaminan or '' }}" class="w-full border rounded px-3 py-2" {{ 'disabled' if korban.nomor_jaminan is not none }} />
-        <button class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded" {{ 'disabled' if korban.nomor_jaminan is not none }}>
+
+    <!-- Step 3 -->
+    <form method="post" class="bg-white shadow-md rounded-lg p-6 space-y-3">
+      <input type="hidden" name="step" value="3">
+
+      <label class="block text-sm font-medium">
+        Nomor Jaminan (kosongkan jika tidak terjamin):
+      </label>
+      <input 
+        name="nomor_jaminan" 
+        value="{{ korban.nomor_jaminan or '' }}" 
+        class="w-full border rounded px-3 py-2 {{ 'bg-gray-100' if korban.nomor_jaminan is not none else '' }}" 
+        {{ 'disabled' if korban.nomor_jaminan is not none }} 
+      />
+
+      <button 
+        type="submit"
+        class="w-full py-2 rounded text-white 
+              {{ 'bg-blue-500 hover:bg-blue-600' if korban.nomor_jaminan is none else 'bg-gray-400 cursor-not-allowed opacity-50' }}"
+        {{ 'disabled' if korban.nomor_jaminan is not none }}
+      >
+        {% if korban.nomor_jaminan %}
+          ✅ Disimpan
+        {% else %}
           Simpan Jaminan
-        </button>
-      </form>
+        {% endif %}
+      </button>
+    </form>
 
-      <!-- Step 4 -->
-      <form method="post" class="bg-white shadow-md rounded-lg p-6 space-y-3">
-        <input type="hidden" name="step" value="4">
-        <label class="block text-sm font-medium">Tanggal Keluar Pasien:</label>
-        <input type="date" name="tgl_keluar" value="{{ korban.tgl_keluar or '' }}" class="w-full border rounded px-3 py-2" {{ 'disabled' if korban.tgl_keluar }} />
-        <button class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded" {{ 'disabled' if korban.tgl_keluar }}>
+    <!-- Step 4 -->
+    <form method="post" class="bg-white shadow-md rounded-lg p-6 space-y-3">
+      <input type="hidden" name="step" value="4">
+
+      <label class="block text-sm font-medium">Tanggal Keluar Pasien:</label>
+      <input 
+        type="date" 
+        name="tgl_keluar" 
+        value="{{ korban.tgl_keluar or '' }}" 
+        class="w-full border rounded px-3 py-2 {{ 'bg-gray-100' if korban.tgl_keluar else '' }}" 
+        {{ 'disabled' if korban.tgl_keluar }}
+      />
+
+      <button 
+        type="submit"
+        class="w-full py-2 rounded text-white 
+              {{ 'bg-blue-500 hover:bg-blue-600' if not korban.tgl_keluar else 'bg-gray-400 cursor-not-allowed opacity-50' }}"
+        {{ 'disabled' if korban.tgl_keluar }}
+      >
+        {% if korban.tgl_keluar %}
+          ✅ Sudah dicatat
+        {% else %}
           Catat Keluar & Tagih
-        </button>
-      </form>
+        {% endif %}
+      </button>
+    </form>
 
-      <!-- Step 6 -->
-      <form method="post" class="bg-white shadow-md rounded-lg p-6 flex flex-col justify-between">
-        <input type="hidden" name="step" value="6">
-        <div class="mb-3">
-          <p class="text-sm font-medium">Proses lanjutan jaminan ke Step 7</p>
-        </div>
-        <button class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded" {{ 'disabled' if korban.status_tagihan == 'DIBAYAR' }}>
+    <!-- Step 6 -->
+    <form method="post" class="bg-white shadow-md rounded-lg p-6 flex flex-col justify-between">
+      <input type="hidden" name="step" value="6">
+      
+      <div class="mb-3">
+        <p class="text-sm font-medium">Proses lanjutan jaminan ke Step 7</p>
+      </div>
+
+      <button 
+        type="submit"
+        class="w-full py-2 rounded text-white 
+              {{ 'bg-blue-500 hover:bg-blue-600' if korban.status_tagihan != 'DIBAYAR' else 'bg-gray-400 cursor-not-allowed opacity-50' }}"
+        {{ 'disabled' if korban.status_tagihan == 'DIBAYAR' }}
+      >
+        {% if korban.status_tagihan == 'DIBAYAR' %}
+          ✅ Sudah dibayar
+        {% else %}
           Proses Jaminan (6–7)
-        </button>
-      </form>
+        {% endif %}
+      </button>
+    </form>
+
     </div>
 
     <!-- Riwayat Status -->
@@ -95,5 +150,34 @@
         </a>
     </div>
   </div>
+  <!-- Overlay -->
+<div id="loading-overlay" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+  <div class="bg-white p-6 rounded-lg flex items-center space-x-3">
+    <svg class="animate-spin h-6 w-6 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 018 8h-4l3 3-3 3h4a8 8 0 01-8 8v-4l-3 3 3 3v-4a8 8 0 01-8-8z"/>
+    </svg>
+    <span class="text-gray-700 font-medium">Memproses…</span>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Pilih semua form di halaman
+  const forms = document.querySelectorAll('form');
+
+  forms.forEach(form => {
+    form.addEventListener('submit', (e) => {
+      // Tampilkan overlay
+      const overlay = document.getElementById('loading-overlay');
+      overlay.classList.remove('hidden');
+
+      // Jika ingin, bisa disable semua button di form
+      form.querySelectorAll('button').forEach(btn => btn.disabled = true);
+    });
+  });
+});
+</script>
+
 </body>
 </html>

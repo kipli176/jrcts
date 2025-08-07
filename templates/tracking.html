@@ -102,8 +102,8 @@
                         {{ status.created_at }}
                     </p>
                     <p class="font-semibold text-gray-700">{{ status.deskripsi }}</p>
-                    {% if status.nomor_dokumen %}
-                    <p class="text-xs text-gray-500 italic">Dokumen: {{ status.nomor_dokumen }}</p>
+                    {% if status.step==8 %}
+                    <a href="{{ url_for('registrasi') }}?jenis_rawatan=Rawat%20Jalan" class="inline-block bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded shadow text-sm">Daftar Rawat Jalan</a>
                     {% endif %}
                 </div>
             </li>
@@ -112,17 +112,16 @@
     </div>
 
     {% endif %}
-
+<!-- 
     <div class="text-center mt-6">
         <a
             href="{{ url_for('registrasi') }}"
             class="inline-block bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded shadow text-sm"
         >
-            ⇦ Kembali ke Registrasi
+            Dapatkan nomor resi
         </a>
-    </div>
+    </div> -->
 </div>
-
 
 <script>
     // Register Service Worker
@@ -156,6 +155,7 @@
         deferredPrompt = null;
       }
     });
+ 
 </script>
 </body>
 </html>

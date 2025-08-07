@@ -24,21 +24,23 @@
     </div>
 
     <div class="bg-white rounded-lg shadow-lg p-6">
-        <table id="korbanTable" class="stripe hover table-auto w-full">
+        <table id="korbanTable" class="stripe hover table-auto w-full text-sm">
             <thead>
                 <tr class="bg-gray-100">
+                    <th class="px-4 py-2">Tgl</th>
                     <th class="px-4 py-2">Resi</th>
                     <th class="px-4 py-2">Nama</th>
-                    <th class="px-4 py-2">Nomor LP</th>
-                    <th class="px-4 py-2">Nomor Jaminan</th>
+                    <th class="px-4 py-2">LP</th>
+                    <th class="px-4 py-2">Jaminan</th>
                     <th class="px-4 py-2">Step</th>
-                    <th class="px-4 py-2">Status Tagihan</th>
+                    <th class="px-4 py-2">Status</th>
                     <th class="px-4 py-2">Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 {% for k in korban_list %}
                 <tr class="hover:bg-gray-50">
+                    <td class="border-t px-4 py-3">{{ k.tgl_kecelakaan }}</td>
                     <td class="border-t px-4 py-3">{{ k.nomor_resi }}</td>
                     <td class="border-t px-4 py-3">{{ k.nama_lengkap }}</td>
                     <td class="border-t px-4 py-3">{{ k.nomor_lp or '—' }}</td>
@@ -52,7 +54,7 @@
                         </a>
                         <form method="post" action="{{ url_for('admin_delete', nomor_resi=k.nomor_resi) }}" class="inline-block">
                             <button type="submit" onclick="return confirm('Hapus klaim ini?');"
-                                    class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">
+                                    class="inline-block bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">
                                 Hapus
                             </button>
                         </form>

@@ -304,48 +304,76 @@ def admin_detail(nomor_resi):
             add_history(korban['id'],4,f"Step 4: Pasien pulang ({tgl})")
             add_history(korban['id'],5,"Step 5: Berkas sudah ditagihkan oleh JCARE")
         elif step == 6:
+            
+            nomor_jaminan = korban['nomor_jaminan']
+            tgl_awal = datetime.strptime(korban['tgl_kecelakaan'], "%Y-%m-%d").strftime("%d/%m/%Y")
+            # tgl_awal = korban['tgl_kecelakaan'].strftime("%d/%m/%Y")
+            url = f"https://ceknopol.sukipli.work/monitoring?id_jaminan={nomor_jaminan}&tgl_awal={tgl_awal}"
+            resp = requests.get(url)
+            if resp.status_code != 200:
+                pass  # skip jika gagal
+            data = resp.json()
+            
+            if not data.get('klaim'):
+                pengajuan = 0
+                digunakan = 0
+                # simpan ke DB
+                db.execute("""
+                    UPDATE korban
+                    SET status_tagihan='CEK_DATA_MONITOR_GL',
+                        jml_pengajuan=?, jml_digunakan=?, tgl_update=?
+                    WHERE id=?
+                """, (pengajuan, digunakan, datetime.now().date(), korban['id']))
+                db.commit()
+
+                # catat histori
+                add_history(korban['id'], 6, "Step 6: Tidak ada klaim, menunggu pembayaran")
+
+            
+            klaim = data['klaim'][0]
+
             # --- Mulai dummy API response ---
-            data = {
-                "ID Jaminan": "0700-2025-003708-04",
-                "Jml Digunakan": "10,779,000",
-                "Jml Pengajuan": "21,500,000",
-                "Loket": "0700001",
-                "Nama Korban": "NI MADE DEWI SRI ADNYANI",
-                "No Surat": "PL/R/2089/GL/2025",
-                "Rumah sakit": "RSUP PROF DR I,G.N.G NGOERAH",
-                "Status Jaminan": "SUDAH DIBAYAR",
-                "Tgl Keluar": "",
-                "Tgl Masuk": "27/06/2025",
-                "Verifikator": "JRCARE",
-                "otorisasi": {
-                    "---": "JRCARE ---",
-                    "Ambulan": "0",
-                    "Ambulance": "0",
-                    "Biaya Admin": "35,000",
-                    "Biaya Alkes": "0",
-                    "Biaya Dokter": "32,311,000",
-                    "Biaya Kamar": "910,000",
-                    "Biaya Obat": "3,418,900",
-                    "Dijaminkan ke": "RSUP PROF DR I,G.N.G NGOERAH",
-                    "Hasil Verifikasi": "10,779,000",
-                    "LL": "10,779,000",
-                    "Otorisasi GL": "TERBIT GL - DISETUJUI",
-                    "P3K": "0",
-                    "Pengajuan": "36,674,900",
-                    "SEP BPJS": "2209R0010625V037002",
-                    "Status GL": "SUDAH DIBAYAR",
-                    "Tgl Masuk RS": "27/06/2025",
-                    "Tgl Update": "10/07/2025",
-                    "Verifikator": "JRCARE"
-                }
-            }
+            # data = {
+            #     "ID Jaminan": "0700-2025-003708-04",
+            #     "Jml Digunakan": "10,779,000",
+            #     "Jml Pengajuan": "21,500,000",
+            #     "Loket": "0700001",
+            #     "Nama Korban": "NI MADE DEWI SRI ADNYANI",
+            #     "No Surat": "PL/R/2089/GL/2025",
+            #     "Rumah sakit": "RSUP PROF DR I,G.N.G NGOERAH",
+            #     "Status Jaminan": "SUDAH DIBAYAR",
+            #     "Tgl Keluar": "",
+            #     "Tgl Masuk": "27/06/2025",
+            #     "Verifikator": "JRCARE",
+            #     "otorisasi": {
+            #         "---": "JRCARE ---",
+            #         "Ambulan": "0",
+            #         "Ambulance": "0",
+            #         "Biaya Admin": "35,000",
+            #         "Biaya Alkes": "0",
+            #         "Biaya Dokter": "32,311,000",
+            #         "Biaya Kamar": "910,000",
+            #         "Biaya Obat": "3,418,900",
+            #         "Dijaminkan ke": "RSUP PROF DR I,G.N.G NGOERAH",
+            #         "Hasil Verifikasi": "10,779,000",
+            #         "LL": "10,779,000",
+            #         "Otorisasi GL": "TERBIT GL - DISETUJUI",
+            #         "P3K": "0",
+            #         "Pengajuan": "36,674,900",
+            #         "SEP BPJS": "2209R0010625V037002",
+            #         "Status GL": "SUDAH DIBAYAR",
+            #         "Tgl Masuk RS": "27/06/2025",
+            #         "Tgl Update": "10/07/2025",
+            #         "Verifikator": "JRCARE"
+            #     }
+            # }
             # --- Akhir dummy response ---
 
             # Proses hanya jika sudah dibayar
-            if data["Status Jaminan"] == "SUDAH DIBAYAR":
+            if klaim["status_jaminan"] == "SUDAH DIBAYAR":
                 # parsing angka dengan menghapus koma
-                pengajuan = int(data["Jml Pengajuan"].replace(",", ""))
-                digunakan = int(data["Jml Digunakan"].replace(",", ""))
+                pengajuan = int(klaim['jml_pengajuan'].replace(",", ""))
+                digunakan = int(klaim['jml_digunakan'].replace(",", ""))
                 # simpan ke DB
                 db.execute("""
                     UPDATE korban
