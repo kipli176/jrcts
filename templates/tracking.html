@@ -112,7 +112,7 @@
     </div>
 
     {% endif %}
-<!-- 
+{% if not nomor %}
     <div class="text-center mt-6">
         <a
             href="{{ url_for('registrasi') }}"
@@ -120,9 +120,9 @@
         >
             Dapatkan nomor resi
         </a>
-    </div> -->
+    </div>
 </div>
-
+{% endif %}
 <script>
     // Register Service Worker
     if ('serviceWorker' in navigator) {

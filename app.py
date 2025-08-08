@@ -32,6 +32,7 @@ def init_db(db):
         nik TEXT NOT NULL,
         alamat_koordinat TEXT,
         nopol_kendaraan TEXT,
+        status_kendaraan TEXT,
         rs_tempat_dirawat TEXT,
         jenis_rawatan TEXT,
         created_at DATETIME NOT NULL,
@@ -62,6 +63,18 @@ def close_db(exc):
     if db:
         db.close()
 
+
+@app.template_filter('format_tanggal')
+def format_tanggal(value):
+    if not value:
+        return ""
+    try:
+        # Jika value adalah string, coba parsing
+        if isinstance(value, str):
+            value = datetime.fromisoformat(value)
+        return value.strftime("%d/%m/%Y")
+    except Exception:
+        return value  # fallback: tampilkan apa adanya
 # ========== HELPERS ==========
 
 def generate_resi():
@@ -89,9 +102,11 @@ def cek_nomor_kendaraan(nopol: str = None) -> dict:
         nopol = "D-1234-DD"
 
     payload = {"nopol": nopol}
+    print(payload)
     try:
         resp = requests.post('https://ceknopol.sukipli.work/cari_kendaraan', json=payload, timeout=5)
         resp.raise_for_status()  # akan memicu exception untuk status_code >=400
+        # print(resp.text())
     except requests.RequestException as e:
         # Anda bisa log e di sini, atau return dict dengan info error
         return {
@@ -205,7 +220,9 @@ def tracking():
             nopol = korban['nopol_kendaraan']
             api_res = cek_nomor_kendaraan(nopol)
             status_kendaraan = api_res.get('status')
+            db.execute("UPDATE korban SET status_kendaraan=? WHERE id=?", (status_kendaraan,korban['id']))
 
+            db.commit()
             # ambil transaksi pertama (terbaru) -> 'akhir' sesuai API
             txs = api_res.get('transactions', [])
             if txs:
@@ -213,6 +230,7 @@ def tracking():
                 akhir_transaksi = txs[0].get('akhir')
     return render_template('tracking.html',
         error=error,
+        nomor=nomor,
         korban=korban,
         riwayat=riwayat,
         status_kendaraan=status_kendaraan,

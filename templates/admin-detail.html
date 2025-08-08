@@ -22,10 +22,14 @@
     <div class="bg-white shadow-md rounded-lg p-6 mb-8">
       <h2 class="text-lg font-semibold mb-4">📋 Data Korban</h2>
       <ul class="space-y-1 text-sm">
-        <li><strong>Nama:</strong> {{ korban.nama_lengkap }}</li>
+        <li><strong>Tgl Registrasi:</strong> {{ korban.created_at | format_tanggal}}</li>
         <li><strong>NIK:</strong> {{ korban.nik }}</li>
+        <li><strong>Nama:</strong> {{ korban.nama_lengkap }}</li>
+        <li><strong>Alamat:</strong> <a href="https://www.google.com/maps/search/?api=1&query="{{ korban.alamat_koordinat }}">Buka Map</a></li>
+        <li><strong>No Telp:</strong> {{ korban.nomor_telepon }}</li>
         <li><strong>LP:</strong> {{ korban.nomor_lp or '-' }}</li>
         <li><strong>Jaminan:</strong> {{ korban.nomor_jaminan or '-' }}</li>
+        <li><strong>Tgl Masuk:</strong> {{ korban.tgl_keluar or '-' }}</li>
         <li><strong>Tgl Keluar:</strong> {{ korban.tgl_keluar or '-' }}</li>
         <li><strong>Status Tagihan:</strong> {{ korban.status_tagihan or '-' }}</li>
       </ul>
