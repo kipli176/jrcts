@@ -25,11 +25,11 @@
         <li><strong>Tgl Registrasi:</strong> {{ korban.created_at | format_tanggal}}</li>
         <li><strong>NIK:</strong> {{ korban.nik }}</li>
         <li><strong>Nama:</strong> {{ korban.nama_lengkap }}</li>
-        <li><strong>Alamat:</strong> <a href="https://www.google.com/maps/search/?api=1&query="{{ korban.alamat_koordinat }}">Buka Map</a></li>
+        <li><strong>Alamat:</strong> <a href="https://www.google.com/maps/search/?api=1&query={{ korban.alamat_koordinat }}" target="_blank">📍Buka Map</a></li>
         <li><strong>No Telp:</strong> {{ korban.nomor_telepon }}</li>
         <li><strong>LP:</strong> {{ korban.nomor_lp or '-' }}</li>
         <li><strong>Jaminan:</strong> {{ korban.nomor_jaminan or '-' }}</li>
-        <li><strong>Tgl Masuk:</strong> {{ korban.tgl_keluar or '-' }}</li>
+        <li><strong>Tgl Masuk:</strong> {{ korban.tgl_masuk or '-' }}</li>
         <li><strong>Tgl Keluar:</strong> {{ korban.tgl_keluar or '-' }}</li>
         <li><strong>Status Tagihan:</strong> {{ korban.status_tagihan or '-' }}</li>
       </ul>
@@ -43,7 +43,7 @@
       <input type="hidden" name="step" value="2">
 
       <label class="block text-sm font-medium">Nomor LP:</label>
-      <input name="nomor_lp" value="{{ korban.nomor_lp or '' }}" class="w-full border rounded px-3 py-2 bg-gray-100" {{ 'disabled' if korban.nomor_lp }}/>
+      <input name="nomor_lp" value="{{ korban.nomor_lp or '' }}" class="w-full border rounded px-3 py-2 bg-gray-100" placeholder="LP/A/XXX/XXX/2025/SPKT.SATLANTAS/XXX/XXX" 'disabled' if korban.nomor_lp }}/>
 
       <button type="submit" class="w-full py-2 rounded text-white 
       {{ 'bg-blue-500 hover:bg-blue-600' if not korban.nomor_lp else 'bg-gray-400 cursor-not-allowed opacity-50' }}" {{ 'disabled' if korban.nomor_lp }}>
@@ -55,34 +55,43 @@
       </button>
     </form>
 
+<!-- Step 3 -->
+<form method="post" class="bg-white shadow-md rounded-lg p-6 space-y-3">
+  <input type="hidden" name="step" value="3">
 
-    <!-- Step 3 -->
-    <form method="post" class="bg-white shadow-md rounded-lg p-6 space-y-3">
-      <input type="hidden" name="step" value="3">
+  <label class="block text-sm font-medium">
+    Nomor Jaminan (kosongkan jika tidak terjamin):
+  </label>
+  <input 
+    name="nomor_jaminan" 
+    value="{{ korban.nomor_jaminan or '' }}" 
+    class="w-full border rounded px-3 py-2 {{ 'bg-gray-100' if korban.nomor_jaminan is not none else '' }}" placeholder="0701-2025-XXXXXXX-01"
+    {{ 'disabled' if korban.nomor_jaminan is not none }} 
+  />
 
-      <label class="block text-sm font-medium">
-        Nomor Jaminan (kosongkan jika tidak terjamin):
-      </label>
-      <input 
-        name="nomor_jaminan" 
-        value="{{ korban.nomor_jaminan or '' }}" 
-        class="w-full border rounded px-3 py-2 {{ 'bg-gray-100' if korban.nomor_jaminan is not none else '' }}" 
-        {{ 'disabled' if korban.nomor_jaminan is not none }} 
-      />
+  <div class="flex gap-3">
+    <button 
+      type="submit"
+      class="flex-1 py-2 rounded text-white 
+            {{ 'bg-blue-500 hover:bg-blue-600' if korban.nomor_jaminan is none else 'bg-gray-400 cursor-not-allowed opacity-50' }}"
+      {{ 'disabled' if korban.nomor_jaminan is not none }}
+    >
+      {% if korban.nomor_jaminan %}
+        ✅ Disimpan
+      {% else %}
+        Simpan Jaminan
+      {% endif %}
+    </button>
 
-      <button 
-        type="submit"
-        class="w-full py-2 rounded text-white 
-              {{ 'bg-blue-500 hover:bg-blue-600' if korban.nomor_jaminan is none else 'bg-gray-400 cursor-not-allowed opacity-50' }}"
-        {{ 'disabled' if korban.nomor_jaminan is not none }}
-      >
-        {% if korban.nomor_jaminan %}
-          ✅ Disimpan
-        {% else %}
-          Simpan Jaminan
-        {% endif %}
-      </button>
-    </form>
+      {% if korban.nomor_jaminan is none %}
+    <button 
+      class="flex-1 py-2 rounded text-white 
+            {{ 'bg-red-500 hover:bg-red-600' if korban.nomor_jaminan is none else 'bg-gray-400 cursor-not-allowed opacity-50' }}">
+      <a href="?gagal=1" >❌ Gagal</a>
+    </button>
+      {% endif %}
+  </div>
+</form>
 
     <!-- Step 4 -->
     <form method="post" class="bg-white shadow-md rounded-lg p-6 space-y-3">
@@ -116,19 +125,19 @@
       <input type="hidden" name="step" value="6">
       
       <div class="mb-3">
-        <p class="text-sm font-medium">Proses lanjutan jaminan ke Step 7</p>
+        <p class="text-sm font-medium">Proses integrasi Monitor GL</p>
       </div>
 
       <button 
         type="submit"
-        class="w-full py-2 rounded text-white 
-              {{ 'bg-blue-500 hover:bg-blue-600' if korban.status_tagihan != 'DIBAYAR' else 'bg-gray-400 cursor-not-allowed opacity-50' }}"
+        class="w-full py-10 rounded text-white 
+              {{ 'bg-green-500 hover:bg-green-600' if korban.status_tagihan != 'DIBAYAR' else 'bg-gray-400 cursor-not-allowed opacity-50' }}"
         {{ 'disabled' if korban.status_tagihan == 'DIBAYAR' }}
       >
         {% if korban.status_tagihan == 'DIBAYAR' %}
           ✅ Sudah dibayar
         {% else %}
-          Proses Jaminan (6–7)
+          🔄 Sinkronisasi
         {% endif %}
       </button>
     </form>
@@ -142,7 +151,7 @@
         {% for h in riwayat %}
         <li>
           [Step {{ h.step }}] {{ h.deskripsi }} 
-          <small class="text-gray-500">({{ h.created_at }})</small>
+          <small class="text-gray-500">({{ h.created_at | format_tanggal }})</small>
         </li>
         {% endfor %}
       </ol>
@@ -164,6 +173,34 @@
     <span class="text-gray-700 font-medium">Memproses…</span>
   </div>
 </div>
+  
+        {% if korban.status_tagihan == 'GAGAL JAMINAN' %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const params = new URLSearchParams(window.location.search);
+      // Disable semua input dan button
+      document.querySelectorAll("input, select, textarea, button").forEach(el => {
+        el.disabled = true;
+        el.classList.remove("hover:bg-blue-600","hover:bg-red-600", "hover:bg-green-600");
+        el.classList.add("bg-gray-400", "cursor-not-allowed", "opacity-50");
+      });
+  });
+</script>
+{% else %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("gagal") === "1") {
+      // Disable semua input dan button
+      document.querySelectorAll("input, select, textarea, button").forEach(el => {
+        el.disabled = true;
+        el.classList.remove("hover:bg-blue-600","hover:bg-red-600", "hover:bg-green-600");
+        el.classList.add("bg-gray-400", "cursor-not-allowed", "opacity-50");
+      });
+    }
+  });
+</script>
+        {% endif %}
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {

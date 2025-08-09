@@ -7,7 +7,14 @@ from datetime import datetime
 app = Flask(__name__)
 app.config['DATABASE'] = 'jrcts.db'
 API_URL = 'https://api.example.com/jaminan'  # ganti sesuai endpoint
-
+def format_rupiah(value):
+    try:
+        value = int(value)
+        return "Rp {:,.0f}".format(value).replace(",", ".")
+    except (ValueError, TypeError):
+        return "Rp 0"
+ 
+app.jinja_env.filters['rupiah'] = format_rupiah
 # ========== DATABASE ==========
 
 def get_db():
@@ -39,6 +46,7 @@ def init_db(db):
         nomor_lp TEXT,
         nomor_jaminan TEXT,
         tgl_kecelakaan DATE,
+        tgl_masuk DATE,
         tgl_keluar DATE,
         status_tagihan TEXT,
         jml_pengajuan INTEGER,
@@ -218,16 +226,18 @@ def tracking():
 
             # ambil nopol dan cek via API
             nopol = korban['nopol_kendaraan']
-            api_res = cek_nomor_kendaraan(nopol)
-            status_kendaraan = api_res.get('status')
-            db.execute("UPDATE korban SET status_kendaraan=? WHERE id=?", (status_kendaraan,korban['id']))
+            status_kendaraan = korban['status_kendaraan']
+            if not status_kendaraan:
+                api_res = cek_nomor_kendaraan(nopol)
+                status_kendaraan = api_res.get('status')
+                db.execute("UPDATE korban SET status_kendaraan=? WHERE id=?", (status_kendaraan,korban['id']))
 
-            db.commit()
-            # ambil transaksi pertama (terbaru) -> 'akhir' sesuai API
-            txs = api_res.get('transactions', [])
-            if txs:
-                # asumsi urutan API: index 0 adalah transaksi paling baru
-                akhir_transaksi = txs[0].get('akhir')
+                db.commit()
+                # ambil transaksi pertama (terbaru) -> 'akhir' sesuai API
+                txs = api_res.get('transactions', [])
+                if txs:
+                    # asumsi urutan API: index 0 adalah transaksi paling baru
+                    akhir_transaksi = txs[0].get('akhir')
     return render_template('tracking.html',
         error=error,
         nomor=nomor,
@@ -291,13 +301,16 @@ def admin_delete():
 
 @app.route('/admin/<nomor_resi>', methods=['GET','POST'])
 def admin_detail(nomor_resi):
+    gagal = request.args.get('gagal', '').strip()
     db = get_db()
     korban = db.execute(
         "SELECT * FROM korban WHERE nomor_resi=?", (nomor_resi,)
     ).fetchone()
     if not korban:
         return "Korban tidak ditemukan", 404
-
+    if gagal:
+        db.execute("UPDATE korban SET status_tagihan=? WHERE id=?", ('GAGAL JAMINAN',korban['id']))
+        add_history(korban['id'],3,f"Step 3: Gagal jaminan, nomor resi anda akan terhapus")
     if request.method == 'POST':
         step = int(request.form['step'])
         if step == 2:
@@ -308,7 +321,42 @@ def admin_detail(nomor_resi):
             nj = request.form.get('nomor_jaminan','').strip()
             db.execute("UPDATE korban SET nomor_jaminan=? WHERE id=?", (nj,korban['id']))
             if nj:
-                add_history(korban['id'],3,f"Step 3: Nomor jaminan diinput ({nj})")
+                
+                tgl_awal = datetime.strptime(korban['tgl_kecelakaan'], "%Y-%m-%d").strftime("%d/%m/%Y")
+                # tgl_awal = korban['tgl_kecelakaan'].strftime("%d/%m/%Y")
+                url = f"https://ceknopol.sukipli.work/jaminan?id_jaminan={nj}&tgl_awal={tgl_awal}"
+                resp = requests.get(url)
+                if resp.status_code != 200:
+                    pass  # skip jika gagal
+                data = resp.json()
+                
+                if not data.get('klaim'):
+                    pengajuan = 0
+                    digunakan = 0
+                    # simpan ke DB
+                    db.execute("""
+                        UPDATE korban
+                        SET status_tagihan='CEK_DATA_MONITOR_GL',
+                            jml_pengajuan=?, jml_digunakan=?, tgl_update=?
+                        WHERE id=?
+                    """, (pengajuan, digunakan, datetime.now().date(), korban['id']))
+                    db.commit()
+
+                    # catat histori
+                    add_history(korban['id'], 6, "Step 6: Tidak ada klaim, menunggu pembayaran")                
+                klaim = data['klaim'][0]
+                pengajuan = int(klaim['jml_pengajuan'].replace(",", ""))
+                statuse = klaim['status_jaminan']
+                tgl_masuk = klaim['tgl_masuk']
+                db.execute("""
+                    UPDATE korban
+                    SET status_tagihan=?, jml_pengajuan=?, tgl_masuk=?, tgl_update=?
+                    WHERE id=?
+                """, (statuse, pengajuan, tgl_masuk, datetime.now().date(), korban['id']))
+                db.commit()
+            
+                add_history(korban['id'],3,f"Step 3: Nomor jaminan diinput ({nj}), saldo sebelumnya ({format_rupiah(pengajuan)})")
+
             else:
                 add_history(korban['id'],3,"Step 3: Kasus tidak terjamin — berhenti")
         elif step == 4:
@@ -403,9 +451,9 @@ def admin_detail(nomor_resi):
 
                 # catat histori langkah 6–7–8
                 add_history(korban['id'], 6,
-                            f"Step 6: Berkas dibayarkan ({digunakan:,} dari {pengajuan:,})")
+                            f"Step 6: Berkas dibayarkan ({format_rupiah(digunakan)} dari {format_rupiah(pengajuan)})")
                 sisa = pengajuan - digunakan
-                add_history(korban['id'], 7, f"Step 7: Sisa jaminan {sisa:,}")
+                add_history(korban['id'], 7, f"Step 7: Sisa jaminan {format_rupiah(sisa)}")
                 add_history(korban['id'], 8, "Step 8: Selesai")
             else:
                 add_history(korban['id'], 6, "Step 6: Menunggu pembayaran")

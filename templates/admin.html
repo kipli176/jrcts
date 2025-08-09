@@ -14,7 +14,7 @@
 </head>
 <body class="bg-gradient-to-br from-blue-100 via-white to-blue-50 min-h-screen font-[Poppins] text-gray-800">
 
-<div class="max-w-7xl mx-auto py-10 px-6">
+<div class="max-w-12xl mx-auto py-10 px-6">
     <div class="text-center mb-8">
         <img src="/static/logo.webp" 
              alt="JRCTS Logo"
@@ -29,10 +29,10 @@
                 <tr class="bg-gray-100">
                     <th class="px-4 py-2">Tgl Reg</th>
                     <th class="px-4 py-2">Tgl Laka</th>
-                    <th class="px-4 py-2">Resi</th>
+                    <th class="px-4 py-2">No Resi</th>
                     <th class="px-4 py-2">Nama</th>
                     <th class="px-4 py-2">LP</th>
-                    <th class="px-4 py-2">Jaminan</th>
+                    <th class="px-4 py-2">No Jaminan</th>
                     <th class="px-4 py-2">Step</th>
                     <th class="px-4 py-2">Status</th>
                     <th class="px-4 py-2">Aksi</th>
@@ -50,14 +50,14 @@
                     <td class="border-t px-4 py-3">{{ k.step or '—' }}</td>
                     <td class="border-t px-4 py-3">{{ k.status_tagihan or '—' }}</td>
                     <td class="border-t px-4 py-3 space-x-2">
-                        <a href="{{ url_for('admin_detail', nomor_resi=k.nomor_resi) }}"
-                           class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded">
-                            Proses
-                        </a>
+                        <button
+                           class="inline-block"><a href="{{ url_for('admin_detail', nomor_resi=k.nomor_resi) }}">
+                            ✅
+                        </a></button>
                         <form method="post" action="{{ url_for('admin_delete', nomor_resi=k.nomor_resi) }}" class="inline-block">
                             <button type="submit" onclick="return confirm('Hapus klaim ini?');"
-                                    class="inline-block bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">
-                                Hapus
+                                    class="inline-block">
+                                ❌
                             </button>
                         </form>
                     </td>
