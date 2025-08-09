@@ -1,7 +1,8 @@
+from collections import defaultdict
 import os
 import sqlite3
 import requests
-from flask import Flask, g, request, redirect, url_for, render_template
+from flask import Flask, g, request, redirect, url_for, render_template, render_template_string, json
 from datetime import datetime
 
 app = Flask(__name__)
@@ -475,6 +476,275 @@ def admin_reset(nomor_resi):
     db.execute("DELETE FROM korban WHERE nomor_resi=?", (nomor_resi,))
     db.commit()
     return redirect(url_for('registrasi'))
+
+
+
+
+def _parse_dt(s):
+    if s is None:
+        return None
+    if isinstance(s, datetime):
+        return s
+    s = str(s).strip()
+    if not s:
+        return None
+    for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M", "%Y-%m-%d",
+                "%d-%m-%Y %H:%M:%S", "%d-%m-%Y %H:%M", "%d-%m-%Y",
+                "%d/%m/%Y %H:%M:%S", "%d/%m/%Y %H:%M", "%d/%m/%Y",
+                "%Y/%m/%d %H:%M:%S", "%Y/%m/%d %H:%M", "%Y/%m/%d"):
+        try:
+            return datetime.strptime(s, fmt)
+        except Exception:
+            pass
+    try:
+        return datetime.fromisoformat(s)
+    except Exception:
+        return None
+
+def _bucket_status(val):
+    """Normalisasi status ke 3 bucket: LUNAS / BELUM LUNAS / ERROR"""
+    if val is None or str(val).strip() == "":
+        return "BELUM LUNAS"
+    v = str(val).upper()
+    if "ERROR" in v:
+        return "ERROR"
+    if "LUNAS" in v and "BELUM" not in v:
+        return "LUNAS"
+    return "BELUM LUNAS"
+
+@app.route("/dashboard")
+def admin_dashboard_tv():
+    db = get_db()
+    cur = db.cursor()
+
+    # 1) Total pasien yang generate resi
+    cur.execute("SELECT COUNT(*) FROM korban WHERE nomor_resi IS NOT NULL")
+    total_resi = int(cur.fetchone()[0])
+
+    # 2) Pasien per step -> step terakhir dari histori_status
+    cur.execute("""
+        SELECT current_step, COUNT(*) AS cnt
+        FROM (
+            SELECT korban_id, MAX(step) AS current_step
+            FROM histori_status
+            GROUP BY korban_id
+        )
+        GROUP BY current_step
+        ORDER BY current_step
+    """)
+    rows = cur.fetchall()
+    step_categories = [str(r[0]) for r in rows]
+    step_values     = [int(r[1]) for r in rows]
+
+    # 3) Status KENDARAAN (sesuai permintaan awal; status tagihan tidak ditampilkan)
+    lunas_kend = belum_kend = error_kend = 0
+    try:
+        cur.execute("SELECT status_kendaraan FROM korban")
+        for (st,) in cur.fetchall():
+            b = _bucket_status(st)
+            lunas_kend += (b == "LUNAS")
+            belum_kend += (b == "BELUM LUNAS")
+            error_kend += (b == "ERROR")
+    except Exception:
+        pass  # jika kolom tidak ada, biarkan 0
+
+    # 4) Rata-rata durasi antar step (transisi N -> N+1) dalam jam
+    cur.execute("""
+        SELECT korban_id, step, created_at
+        FROM histori_status
+        ORDER BY korban_id, step, created_at
+    """)
+    trans_rows = cur.fetchall()
+    sums = defaultdict(float); counts = defaultdict(int)
+    last = {}
+    for korban_id, step, created_at in trans_rows:
+        t = _parse_dt(created_at)
+        if t is None: continue
+        if korban_id in last:
+            prev_step, prev_t = last[korban_id]
+            if prev_t and step == (prev_step or 0) + 1:
+                delta = (t - prev_t).total_seconds()
+                if delta >= 0:
+                    sums[step] += delta
+                    counts[step] += 1
+        last[korban_id] = (step, t)
+
+    dur_steps = sorted(sums.keys())
+    dur_categories = [f"Step {s}" for s in dur_steps]   # tujuan
+    dur_values = [(sums[s]/counts[s])/3600.0 if counts[s] else 0.0 for s in dur_steps]
+
+    now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    # === TEMPLATE: Single-screen 1366x700 (tanpa scroll) ===
+    # Tata letak: header tipis (56px) + grid 2x2 (atas: Steps & Status; bawah: Durasi full)
+    # Ukuran chart diset via CSS agar muat di satu layar TV
+    return render_template_string("""
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Panel - Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="refresh" content="300" />
+  <!-- Fonts & Tailwind (konsisten admin) -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Highcharts -->
+  <script src="https://code.highcharts.com/highcharts.js"></script>
+  <style>
+    body { font-family: 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    /* Batas layar TV */
+    .screen { margin: 0 auto; background: linear-gradient(to bottom right, #dbeafe, #ffffff, #eff6ff); overflow: hidden; border: 1px solid #e5e7eb; }
+    .tv-header { height: 56px; }
+    .tv-grid   { height: calc(700px - 56px); padding: 8px; display: grid; gap: 8px;
+                 grid-template-columns: 2fr 1fr; grid-template-rows: 1fr 1fr;
+                 grid-template-areas: "steps status" "dur dur"; }
+    /* Card chart */
+    .chart-card { background:#fff; border:1px solid #e5e7eb; border-radius: 12px; padding: 10px; display:flex; flex-direction:column; }
+    .chart-title { font-size: 16px; font-weight: 600; color:#1f2937; margin: 0 0 4px; }
+    /* Kotak chart: pastikan tinggi fixed agar pas */
+    #wrap-steps    { grid-area: steps; min-height: 0; }
+    #wrap-status   { grid-area: status; min-height: 0; }
+    #wrap-dur      { grid-area: dur; min-height: 0; }
+    /* Tinggi spesifik tiap chart agar total muat 700px:
+       - baris atas: 310px tinggi kartu
+       - baris bawah: 300px tinggi kartu
+    */
+    #wrap-steps  { height: 310px; }
+    #wrap-status { height: 310px; }
+    #wrap-dur    { height: 300px; }
+    .chart-box   { flex: 1 1 auto; width: 100%; height: 100%; }
+
+    /* Highcharts: kecilkan label supaya rapih */
+    .highcharts-title, .highcharts-subtitle { display: none; }
+  </style>
+  <script>
+    // Samakan tone warna & font
+    Highcharts.setOptions({
+      colors: ['#2563eb','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4'],
+      chart: {
+        style: { fontFamily: 'Poppins, sans-serif' },
+        backgroundColor: 'transparent',
+        spacing: [6,6,6,6]
+      },
+      xAxis: { labels: { style: { color: '#4b5563', fontSize: '10px' } }, title: { style: { color: '#4b5563', fontSize:'10px' } } },
+      yAxis: { labels: { style: { color: '#4b5563', fontSize: '10px' } }, title: { style: { color: '#4b5563', fontSize:'10px' } } },
+      legend: { itemStyle: { color: '#374151', fontSize: '10px' } },
+      tooltip: { style: { fontSize: '11px' } },
+      credits: { enabled: false }
+    });
+  </script>
+</head>
+<body class="text-gray-800">
+  <div class="screen">
+    <!-- HEADER TIPIS -->
+    <div class="tv-header w-full border-b border-gray-200 bg-white/80 backdrop-blur">
+      <div class="h-full px-4 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <img src="/static/logo.webp" alt="JRCTS Logo" class="h-8 w-auto" />
+          <div>
+            <h1 class="text-xl font-bold leading-tight">Panel: Dashboard Klaim</h1>
+            <p class="text-gray-600 text-xs">Terakhir diperbarui: {{ now_str }} • Auto-refresh 5 menit</p>
+          </div>
+        </div>
+        <!-- Badge KPI: total pasien generate resi -->
+        <div class="shrink-0 bg-blue-600 text-white rounded-md px-3 py-2 text-right">
+          <div class="text-[10px] opacity-90 leading-none">Pasien Generate Resi</div>
+          <div class="text-xl font-semibold leading-none">{{ total_resi }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GRID 1366x(700-56) -->
+    <div class="tv-grid">
+      <!-- Chart 1: Pasien per Step -->
+      <div class="chart-card" id="wrap-steps">
+        <div class="chart-title">Pasien per Step (berdasarkan step terakhir)</div>
+        <div id="chart-steps" class="chart-box"></div>
+      </div>
+
+      <!-- Chart 2: Status Kendaraan (donut) -->
+      <div class="chart-card" id="wrap-status">
+        <div class="chart-title">Status Kendaraan</div>
+        <div id="chart-status-kendaraan" class="chart-box"></div>
+      </div>
+
+      <!-- Chart 3: Rata-rata Durasi Antar Step -->
+      <div class="chart-card" id="wrap-dur">
+        <div class="chart-title">Rata-rata Kecepatan Update Tiap Step</div>
+        <div id="chart-dur" class="chart-box"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Data dari backend
+    const stepCategories = {{ step_categories|tojson }};
+    const stepValues     = {{ step_values|tojson }};
+    const statusKendData = [
+      { name: 'LUNAS',       y: {{ lunas_kend }} },
+      { name: 'BELUM LUNAS', y: {{ belum_kend }} },
+      { name: 'ERROR',       y: {{ error_kend }} }
+    ];
+    const durCategories  = {{ dur_categories|tojson }};
+    const durValues      = {{ dur_values|tojson }};
+
+    function makeSteps() {
+      Highcharts.chart('chart-steps', {
+        chart: { type: 'column', height: document.getElementById('wrap-steps').clientHeight - 36 },
+        title: { text: null },
+        xAxis: { categories: stepCategories, title: { text: 'Step' } },
+        yAxis: { title: { text: 'Jumlah Pasien' }, allowDecimals: false },
+        legend: { enabled: false },
+        series: [{ name: 'Pasien', data: stepValues }]
+      });
+    }
+
+    function makeStatusKendaraan() {
+      Highcharts.chart('chart-status-kendaraan', {
+        chart: { type: 'pie', height: document.getElementById('wrap-status').clientHeight - 36 },
+        title: { text: null },
+        plotOptions: {
+          pie: {
+            innerSize: '55%',
+            dataLabels: { enabled: true, format: '{point.name}: {point.y}', style: { fontSize: '11px' } }
+          }
+        },
+        series: [{ name: 'Jumlah', data: statusKendData }]
+      });
+    }
+
+    function makeDurasi() {
+      Highcharts.chart('chart-dur', {
+        chart: { type: 'bar', height: document.getElementById('wrap-dur').clientHeight - 36 },
+        title: { text: null },
+        xAxis: { categories: durCategories, title: { text: null } },
+        yAxis: { title: { text: 'Rata-rata (jam)' } },
+        legend: { enabled: false },
+        tooltip: { valueDecimals: 2, valueSuffix: ' jam' },
+        series: [{ name: 'Rata-rata (jam)', data: durValues }]
+      });
+    }
+
+    // Render setelah DOM siap
+    window.addEventListener('load', () => {
+      makeSteps(); makeStatusKendaraan(); makeDurasi();
+    });
+
+    // Re-render jika container berubah (mis. ganti zoom TV)
+    window.addEventListener('resize', () => {
+      makeSteps(); makeStatusKendaraan(); makeDurasi();
+    });
+  </script>
+</body>
+</html>
+    """,
+    now_str=now_str,
+    total_resi=total_resi,
+    step_categories=step_categories, step_values=step_values,
+    lunas_kend=lunas_kend, belum_kend=belum_kend, error_kend=error_kend,
+    dur_categories=dur_categories, dur_values=dur_values
+    )
 
 
 if __name__ == '__main__':
