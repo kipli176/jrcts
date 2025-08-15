@@ -31,7 +31,7 @@
                     <th class="px-4 py-2">Tgl Laka</th>
                     <th class="px-4 py-2">No Resi</th>
                     <th class="px-4 py-2">Nama</th>
-                    <th class="px-4 py-2">LP</th>
+                    <th class="px-4 py-2">RS</th> 
                     <th class="px-4 py-2">No Jaminan</th>
                     <th class="px-4 py-2">Step</th>
                     <th class="px-4 py-2">Status</th>
@@ -45,7 +45,7 @@
                     <td class="border-t px-4 py-3">{{ k.tgl_kecelakaan | format_tanggal}}</td>
                     <td class="border-t px-4 py-3">{{ k.nomor_resi }}</td>
                     <td class="border-t px-4 py-3">{{ k.nama_lengkap }}</td>
-                    <td class="border-t px-4 py-3">{{ k.nomor_lp or '—' }}</td>
+                    <td class="border-t px-4 py-3">{{ k.rs_tempat_dirawat }}</td> 
                     <td class="border-t px-4 py-3">{{ k.nomor_jaminan or '—' }}</td>
                     <td class="border-t px-4 py-3">{{ k.step or '—' }}</td>
                     <td class="border-t px-4 py-3">{{ k.status_tagihan or '—' }}</td>
@@ -67,7 +67,11 @@
         </table>
     </div>
 </div>
-
+<div class="text-center mt-6">
+        <a href="/dashboard" class="inline-block bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded shadow text-sm">
+            Dashboard
+        </a>
+    </div>
 <!-- jQuery & DataTables JS -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>

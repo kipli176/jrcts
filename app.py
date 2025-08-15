@@ -38,7 +38,10 @@ def init_db(db):
         usia INTEGER NOT NULL,
         nomor_telepon TEXT NOT NULL,
         nik TEXT NOT NULL,
-        alamat_koordinat TEXT,
+        provinsi TEXT,
+        kabupaten TEXT,
+        kecamatan TEXT,
+        kelurahan TEXT,
         nopol_kendaraan TEXT,
         status_kendaraan TEXT,
         rs_tempat_dirawat TEXT,
@@ -154,7 +157,10 @@ def registrasi():
         nama_lengkap      = request.form['nama_lengkap']
         usia              = int(request.form['usia'])
         nomor_telepon     = request.form['nomor_telepon']
-        alamat_koordinat  = request.form['alamat_koordinat']
+        provinsi        = request.form['provinsi']
+        kabupaten       = request.form['kabupaten']
+        kecamatan  = request.form['kecamatan']
+        kelurahan  = request.form['kelurahan'] 
         tgl_kecelakaan    = request.form['tgl_kecelakaan']
         nopol_kendaraan   = request.form['nopol_kendaraan']
         rs_tempat_dirawat = request.form['rs_tempat_dirawat']
@@ -178,12 +184,12 @@ def registrasi():
         cur = db.execute("""
             INSERT INTO korban (
                 nomor_resi, nik, nama_lengkap, usia, nomor_telepon,
-                alamat_koordinat, tgl_kecelakaan, nopol_kendaraan,
+                provinsi, kabupaten, kecamatan, kelurahan, tgl_kecelakaan, nopol_kendaraan,
                 rs_tempat_dirawat, jenis_rawatan, created_at
-            ) VALUES (?,?,?,?,?,?,?,?,?,?,?)
+            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
         """, (
             nomor_resi, nik, nama_lengkap, usia, nomor_telepon,
-            alamat_koordinat, tgl_kecelakaan, nopol_kendaraan,
+            provinsi, kabupaten, kecamatan, kelurahan, tgl_kecelakaan, nopol_kendaraan,
             rs_tempat_dirawat, jenis_rawatan, datetime.now()
         ))
         db.commit()
@@ -575,6 +581,22 @@ def admin_dashboard_tv():
 
     now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+    cur.execute("""
+        SELECT COALESCE(NULLIF(TRIM(rs_tempat_dirawat), ''), '(Tidak diketahui)') AS rs,
+               COUNT(*) AS total
+        FROM korban
+        GROUP BY rs
+        ORDER BY total DESC, rs ASC
+    """)
+    hospital_counts = cur.fetchall()
+
+    # Build HTML baris <tr> untuk tiap rumah sakit
+    hospital_rows_html = "\n".join(
+        f"<tr><td class='px-3 py-2 border'>{row['rs']}</td>"
+        f"<td class='px-3 py-2 border text-right'>{row['total']}</td></tr>"
+        for row in hospital_counts
+    )
+
     # === TEMPLATE: Single-screen 1366x700 (tanpa scroll) ===
     # Tata letak: header tipis (56px) + grid 2x2 (atas: Steps & Status; bawah: Durasi full)
     # Ukuran chart diset via CSS agar muat di satu layar TV
@@ -647,11 +669,18 @@ def admin_dashboard_tv():
             <p class="text-gray-600 text-xs">Terakhir diperbarui: {{ now_str }} • Auto-refresh 5 menit</p>
           </div>
         </div>
-        <!-- Badge KPI: total pasien generate resi -->
+        <!-- Badge KPI: total pasien generate resi + tombol ke /admin -->
+        <div class="flex items-center gap-3">
         <div class="shrink-0 bg-blue-600 text-white rounded-md px-3 py-2 text-right">
-          <div class="text-[10px] opacity-90 leading-none">Pasien Generate Resi</div>
-          <div class="text-xl font-semibold leading-none">{{ total_resi }}</div>
+            <div class="text-[10px] opacity-90 leading-none">Pasien Generate Resi</div>
+            <div class="text-xl font-semibold leading-none">{{ total_resi }}</div>
         </div>
+        <a href="/admin"
+            class="shrink-0 inline-flex items-center justify-center px-3 py-2 rounded-md border border-blue-600 text-blue-600 hover:bg-blue-50 transition">
+            Ke Admin
+        </a>
+        </div>
+
       </div>
     </div>
 
@@ -674,6 +703,25 @@ def admin_dashboard_tv():
         <div class="chart-title">Rata-rata Kecepatan Update Tiap Step</div>
         <div id="chart-dur" class="chart-box"></div>
       </div>
+                                  
+
+                                  
+    </div>
+                                  
+    <!-- Tabel Rumah Sakit -->
+    <div class="chart-card">
+      <h2 class="font-semibold mb-2">Jumlah Pasien per Rumah Sakit</h2>
+      <table class="min-w-full border-collapse text-sm">
+        <thead>
+          <tr>
+            <th class="px-3 py-2 border text-left">Rumah Sakit</th>
+            <th class="px-3 py-2 border text-right">Jumlah Pasien</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{ hospital_rows_html|safe }}
+        </tbody>
+      </table>
     </div>
   </div>
 
@@ -743,7 +791,8 @@ def admin_dashboard_tv():
     total_resi=total_resi,
     step_categories=step_categories, step_values=step_values,
     lunas_kend=lunas_kend, belum_kend=belum_kend, error_kend=error_kend,
-    dur_categories=dur_categories, dur_values=dur_values
+    dur_categories=dur_categories, dur_values=dur_values,
+    hospital_rows_html=hospital_rows_html
     )
 
 

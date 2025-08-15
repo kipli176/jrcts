@@ -10,6 +10,28 @@
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
 </head>
 <body class="bg-gradient-to-br from-blue-100 via-white to-blue-50 min-h-screen font-[Poppins] text-gray-800">
+  <style>
+    /* Samakan tampilan Select2 dengan input Tailwind-ish */
+    .select2-container .select2-selection--single {
+      height: 42px !important;
+      border: 1px solid #d1d5db;
+      border-radius: 0.375rem;
+      padding: 0 0.5rem;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+      line-height: 40px;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+      height: 40px !important;
+      right: 0.5rem;
+    }
+    .select2-container--default .select2-selection--single:focus,
+    .select2-container--default .select2-selection--single:focus-within {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(59,130,246,.5); /* ring-blue-400 */
+      border-color: #93c5fd; /* blue-300 */
+    }
+  </style>
     <style>
         /* Select2 + Tailwind integration */
         .select2-container--default .select2-selection--single {
@@ -77,6 +99,10 @@
                 <!-- CSRF token jika diperlukan -->
                 <input type="hidden" name="csrfmiddlewaretoken" value="">
 
+  <!-- Grid 2 kolom -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    
+    <div class="space-y-4">
                 <!-- NIK -->
                 <div>
                     <label for="id_nik" class="block text-sm font-medium mb-1">
@@ -85,7 +111,9 @@
                     <input type="text" id="id_nik" name="nik" required
                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-400 shadow-sm"/>
                 </div>
+                </div>
 
+    <div class="space-y-4">
                 <!-- Nama Lengkap -->
                 <div>
                     <label for="id_nama_lengkap" class="block text-sm font-medium mb-1">
@@ -95,6 +123,9 @@
                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-400 shadow-sm"/>
                 </div>
 
+                </div>
+
+    <div class="space-y-4">
                 <!-- Usia -->
                 <div>
                     <label for="id_usia" class="block text-sm font-medium mb-1">
@@ -104,6 +135,9 @@
                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-400 shadow-sm"/>
                 </div>
 
+                </div>
+
+    <div class="space-y-4">
                 <!-- Nomor Telepon -->
                 <div>
                     <label for="id_nomor_telepon" class="block text-sm font-medium mb-1">
@@ -113,8 +147,11 @@
                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-400 shadow-sm"/>
                 </div>
 
+                </div>
+
+    <div class="space-y-4">
                 <!-- Alamat Koordinat -->
-                <div>
+                <!-- <div>
                     <label for="id_alamat_koordinat" class="block text-sm font-medium mb-1">
                         Alamat Koordinat <span class="text-red-500">*</span>
                     </label>
@@ -127,8 +164,67 @@
                             Pilih Lokasi
                         </button>
                     </div>
+                </div> -->
+
+ 
+      <div>
+        <label for="select2-provinsi" class="block text-sm font-medium mb-1">
+          Provinsi <span class="text-red-500">*</span>
+        </label>
+        <select id="select2-provinsi" name="provinsi" required
+          class="w-full rounded-md px-3 py-2 border border-gray-300 shadow-sm">
+          <option value="" disabled selected>- Pilih Provinsi -</option>
+        </select>
+      </div>
+
                 </div>
 
+    <div class="space-y-4">
+      <div>
+        <label for="select2-kabupaten" class="block text-sm font-medium mb-1">
+          Kabupaten <span class="text-red-500">*</span>
+        </label>
+        <select id="select2-kabupaten" name="kabupaten" required
+          class="w-full rounded-md px-3 py-2 border border-gray-300 shadow-sm">
+          <option value="" disabled selected>- Pilih Kabupaten -</option>
+        </select>
+      </div>
+    </div> 
+
+    <!-- Kolom kanan -->
+    <div class="space-y-4">
+      <div>
+        <label for="select2-kecamatan" class="block text-sm font-medium mb-1">
+          Kecamatan <span class="text-red-500">*</span>
+        </label>
+        <select id="select2-kecamatan" name="kecamatan" required
+          class="w-full rounded-md px-3 py-2 border border-gray-300 shadow-sm">
+          <option value="" disabled selected>- Pilih Kecamatan -</option>
+        </select>
+      </div>
+
+                </div>
+
+    <div class="space-y-4">
+      <div>
+        <label for="select2-kelurahan" class="block text-sm font-medium mb-1">
+          Kelurahan <span class="text-red-500">*</span>
+        </label>
+        <select id="select2-kelurahan" name="kelurahan" required
+          class="w-full rounded-md px-3 py-2 border border-gray-300 shadow-sm">
+          <option value="" disabled selected>- Pilih Kelurahan -</option>
+        </select>
+      </div>
+    </div>
+    <!-- Alamat manual: full width -->
+    <div class="md:col-span-2">
+      <label for="alamat-lengkap" class="block text-sm font-medium mb-1">
+        Alamat Lengkap <span class="text-red-500">*</span>
+      </label>
+      <textarea id="alamat-lengkap" name="alamat_lengkap" rows="4" required
+        class="w-full rounded-md px-3 py-2 border border-gray-300 shadow-sm"
+        placeholder="Tulis alamat lengkap secara manual"></textarea>
+    </div>
                 <!-- Tanggal Kecelakaan -->
                 <div>
                     <label for="id_tgl_kecelakaan" class="block text-sm font-medium mb-1">
@@ -171,6 +267,7 @@
                     </select>
                 </div>
 
+  </div>
                 <!-- Submit -->
                 <div class="text-center">
                     <button type="submit"
@@ -214,7 +311,68 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
+  <script>
+    var urlProvinsi = "https://ibnux.github.io/data-indonesia/provinsi.json";
+    var urlKabupaten = "https://ibnux.github.io/data-indonesia/kabupaten/";
+    var urlKecamatan = "https://ibnux.github.io/data-indonesia/kecamatan/";
+    var urlKelurahan = "https://ibnux.github.io/data-indonesia/kelurahan/";
 
+    function clearOptions(id) {
+      $('#' + id).empty().trigger('change');
+    }
+
+    // Inisialisasi awal agar Select2 aktif & width 100%
+    $("#select2-provinsi, #select2-kabupaten, #select2-kecamatan, #select2-kelurahan").select2({ width: '100%' });
+
+    // Load Provinsi
+    $.getJSON(urlProvinsi, function (res) {
+      res = $.map(res, function (obj) { obj.text = obj.nama; return obj; });
+      var data = [{ id: "", nama: "- Pilih Provinsi -", text: "- Pilih Provinsi -" }].concat(res);
+      $("#select2-provinsi").empty().select2({ width: '100%', data: data });
+    });
+
+    // Provinsi -> Kabupaten (reset turunannya)
+    $('#select2-provinsi').on('change', function () {
+      var value = $(this).val();
+      clearOptions('select2-kabupaten'); clearOptions('select2-kecamatan'); clearOptions('select2-kelurahan');
+
+      if (value) {
+        $.getJSON(urlKabupaten + value + ".json", function (res) {
+          res = $.map(res, function (obj) { obj.text = obj.nama; return obj; });
+          var data = [{ id: "", nama: "- Pilih Kabupaten -", text: "- Pilih Kabupaten -" }].concat(res);
+          $("#select2-kabupaten").select2({ width: '100%', data: data });
+        });
+      }
+    });
+
+    // Kabupaten -> Kecamatan
+    $('#select2-kabupaten').on('change', function () {
+      var value = $(this).val();
+      clearOptions('select2-kecamatan'); clearOptions('select2-kelurahan');
+
+      if (value) {
+        $.getJSON(urlKecamatan + value + ".json", function (res) {
+          res = $.map(res, function (obj) { obj.text = obj.nama; return obj; });
+          var data = [{ id: "", nama: "- Pilih Kecamatan -", text: "- Pilih Kecamatan -" }].concat(res);
+          $("#select2-kecamatan").select2({ width: '100%', data: data });
+        });
+      }
+    });
+
+    // Kecamatan -> Kelurahan
+    $('#select2-kecamatan').on('change', function () {
+      var value = $(this).val();
+      clearOptions('select2-kelurahan');
+
+      if (value) {
+        $.getJSON(urlKelurahan + value + ".json", function (res) {
+          res = $.map(res, function (obj) { obj.text = obj.nama; return obj; });
+          var data = [{ id: "", nama: "- Pilih Kelurahan -", text: "- Pilih Kelurahan -" }].concat(res);
+          $("#select2-kelurahan").select2({ width: '100%', data: data });
+        });
+      }
+    });
+  </script>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     const urlParams = new URLSearchParams(window.location.search);
