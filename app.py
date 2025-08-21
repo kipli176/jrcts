@@ -6,8 +6,9 @@ from flask import Flask, g, request, redirect, url_for, render_template, render_
 from datetime import datetime
 
 app = Flask(__name__)
-app.config['DATABASE'] = 'jrcts.db'
-API_URL = 'https://api.example.com/jaminan'  # ganti sesuai endpoint
+app.config['DATABASE'] = 'jrcts.db' 
+
+app.secret_key = 'superrahasia_2025!'
 def format_rupiah(value):
     try:
         value = int(value)
@@ -230,7 +231,7 @@ def tracking():
                 "SELECT * FROM histori_status WHERE korban_id = ? ORDER BY step, created_at",
                 (korban['id'],)
             ).fetchall()
-            
+
             # ambil nopol dan cek via API
             nopol = korban['nopol_kendaraan']
 
