@@ -27,7 +27,7 @@
         <table id="korbanTable" class="stripe hover table-auto w-full text-sm">
             <thead>
                 <tr class="bg-gray-100">
-                    <th class="px-4 py-2">Tgl Reg</th>
+                    <th class="px-4 py-2">No</th>
                     <th class="px-4 py-2">Tgl Laka</th>
                     <th class="px-4 py-2">No Resi</th>
                     <th class="px-4 py-2">Nama</th>
@@ -41,7 +41,7 @@
             <tbody>
                 {% for k in korban_list %}
                 <tr class="hover:bg-gray-50">
-                    <td class="border-t px-4 py-3">{{ k.created_at | format_tanggal}}</td>
+                    <td class="border-t px-4 py-3">{{ loop.index }}</td>
                     <td class="border-t px-4 py-3">{{ k.tgl_kecelakaan | format_tanggal}}</td>
                     <td class="border-t px-4 py-3">{{ k.nomor_resi }}</td>
                     <td class="border-t px-4 py-3">{{ k.nama_lengkap }}</td>

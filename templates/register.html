@@ -233,16 +233,26 @@
                     <input type="date" id="id_tgl_kecelakaan" name="tgl_kecelakaan" required
                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-400 shadow-sm"/>
                 </div>
+<!-- Nomor Polisi Kendaraan -->
+<div>
+    <label for="select_nopol" class="block text-sm font-medium mb-1">
+        Nomor Polisi Kendaraan <span class="text-red-500">*</span>
+    </label>
 
-                <!-- Nomor Polisi Kendaraan -->
-                <div>
-                    <label for="id_nopol_kendaraan" class="block text-sm font-medium mb-1">
-                        Nomor Polisi Kendaraan <span class="text-red-500">*</span>
-                    </label>
-                    <input type="text" id="id_nopol_kendaraan" name="nopol_kendaraan" required
-                           placeholder="Contoh: B-1234-CD"
-                           class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-400 shadow-sm"/>
-                </div>
+    <!-- Select2 dropdown -->
+    <select id="select_nopol" class="w-full border border-gray-300 rounded-md px-3 py-2 mb-2" required>
+        <option value="">-- Pilih opsi --</option>
+        <option value="PEJAKI">PEJAKI</option>
+        <option value="manual">Masukkan Nomor Polisi Manual</option>
+    </select>
+
+    <!-- Input manual disembunyikan -->
+    <input type="text" id="id_nopol_kendaraan" placeholder="Contoh: B-1234-CD"
+           class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-400 shadow-sm hidden" />
+
+    <!-- Hidden input untuk hasil akhir -->
+    <input type="hidden" name="nopol_kendaraan" id="nopol_kendaraan_final" required />
+</div>
 
                 <!-- RS Tempat Dirawat -->
                 <div>
@@ -471,28 +481,79 @@ console.log(jenisRawatan);
         }
     }
 
-    // Auto-format Nopol & form validation
-    document.addEventListener('DOMContentLoaded',()=>{
-        const vehicleInput = document.getElementById("id_nopol_kendaraan");
-        vehicleInput.addEventListener("input", e=>{
-            let raw = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,"");
-            const m = raw.match(/^([A-Z]{0,2})(\d{0,4})([A-Z]{0,3})$/);
-            if(m){
-                let f = m[1];
-                if(m[2]) f += "-" + m[2];
-                if(m[3]) f += "-" + m[3];
-                e.target.value = f.trim();
-            } else e.target.value = raw;
-        });
-        document.getElementById("RegisterForm").addEventListener("submit",e=>{
+    </script>
+    <script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Init Select2
+    $('#select_nopol').select2({
+        placeholder: "-- Pilih opsi --",
+        minimumResultsForSearch: Infinity
+    });
+
+    const selectNopol = document.getElementById("select_nopol");
+    const vehicleInput = document.getElementById("id_nopol_kendaraan");
+    const hiddenInput = document.getElementById("nopol_kendaraan_final");
+    const form = document.getElementById("RegisterForm");
+
+    // Ensure native change event fires
+    $('#select_nopol').on('change', () => {
+        selectNopol.dispatchEvent(new Event('change'));
+    });
+
+    // Handle select change
+    selectNopol.addEventListener("change", () => {
+        const val = selectNopol.value;
+
+        if (val === "manual") {
+            vehicleInput.classList.remove("hidden");
+            vehicleInput.required = true;
+            vehicleInput.value = "";
+            hiddenInput.value = "";
+        } else {
+            vehicleInput.classList.add("hidden");
+            vehicleInput.required = false;
+            vehicleInput.value = "";
+            hiddenInput.value = val; // e.g. "PEJAKI"
+        }
+    });
+
+    // Auto-format input manual
+    vehicleInput.addEventListener("input", e => {
+        let raw = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+        const m = raw.match(/^([A-Z]{0,2})(\d{0,4})([A-Z]{0,3})$/);
+        if (m) {
+            let f = m[1];
+            if (m[2]) f += "-" + m[2];
+            if (m[3]) f += "-" + m[3];
+            e.target.value = f.trim();
+        } else {
+            e.target.value = raw;
+        }
+    });
+
+    // Form submission handler
+    form.addEventListener("submit", e => {
+        const selected = selectNopol.value;
+
+        if (selected === "manual") {
             const v = vehicleInput.value.trim().toUpperCase();
-            if(!/^([A-Z]{1,2})-(\d{1,4})(-[A-Z]{1,3})?$/.test(v)){
+            if (!/^([A-Z]{1,2})-(\d{1,4})(-[A-Z]{1,3})?$/.test(v)) {
                 e.preventDefault();
                 alert("Format nomor polisi tidak valid.\nContoh: B-1234-CD");
                 vehicleInput.focus();
+                return;
             }
-        });
+            hiddenInput.value = v;
+        } else if (!selected) {
+            e.preventDefault();
+            alert("Silakan pilih opsi nomor polisi.");
+            selectNopol.focus();
+        }
+
+        // Jika PEJAKI dipilih, nilainya sudah masuk ke hiddenInput
     });
-    </script>
+});
+</script>
+
 </body>
 </html>

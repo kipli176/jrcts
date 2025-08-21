@@ -2,7 +2,7 @@ from collections import defaultdict
 import os
 import sqlite3
 import requests
-from flask import Flask, g, request, redirect, url_for, render_template, render_template_string, json
+from flask import Flask, g, request, redirect, url_for, render_template, render_template_string, json, flash, send_file
 from datetime import datetime
 
 app = Flask(__name__)
@@ -230,21 +230,25 @@ def tracking():
                 "SELECT * FROM histori_status WHERE korban_id = ? ORDER BY step, created_at",
                 (korban['id'],)
             ).fetchall()
-
+            
             # ambil nopol dan cek via API
             nopol = korban['nopol_kendaraan']
-            status_kendaraan = korban['status_kendaraan']
-            if not status_kendaraan:
-                api_res = cek_nomor_kendaraan(nopol)
-                status_kendaraan = api_res.get('status')
-                db.execute("UPDATE korban SET status_kendaraan=? WHERE id=?", (status_kendaraan,korban['id']))
 
-                db.commit()
-                # ambil transaksi pertama (terbaru) -> 'akhir' sesuai API
-                txs = api_res.get('transactions', [])
-                if txs:
-                    # asumsi urutan API: index 0 adalah transaksi paling baru
-                    akhir_transaksi = txs[0].get('akhir')
+            # ✅ Skip jika nopol adalah 'PEJAKI'
+            if nopol != 'PEJAKI':
+                status_kendaraan = korban['status_kendaraan']
+                if not status_kendaraan:
+                    api_res = cek_nomor_kendaraan(nopol)
+                    status_kendaraan = api_res.get('status')
+                    db.execute("UPDATE korban SET status_kendaraan=? WHERE id=?", (status_kendaraan, korban['id']))
+                    db.commit()
+
+                    # ambil transaksi pertama (terbaru) -> 'akhir' sesuai API
+                    txs = api_res.get('transactions', [])
+                    if txs:
+                        # asumsi urutan API: index 0 adalah transaksi paling baru
+                        akhir_transaksi = txs[0].get('akhir')
+
     return render_template('tracking.html',
         error=error,
         nomor=nomor,
@@ -794,7 +798,76 @@ def admin_dashboard_tv():
     dur_categories=dur_categories, dur_values=dur_values,
     hospital_rows_html=hospital_rows_html
     )
+# Path file database utama
+DATABASE_NAME = 'jrcts.db'
+DATABASE_PATH = os.path.join(os.path.dirname(__file__), DATABASE_NAME)
 
+# Izinkan ekstensi tertentu
+ALLOWED_EXTENSIONS = {'db', 'sqlite'}
+
+# Fungsi cek ekstensi file
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+# Halaman utama
+@app.route('/upload', methods=['GET'])
+def upload_form():
+    return render_template_string('''
+        <!doctype html>
+        <title>Upload / Download SQLite</title>
+        <h1>Upload / Download SQLite File</h1>
+
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <ul style="color: green;">
+            {% for message in messages %}
+              <li>{{ message }}</li>
+            {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+
+        <!-- Form upload -->
+        <form method="post" action="/upload" enctype="multipart/form-data">
+            <input type="file" name="file" accept=".sqlite,.db" required>
+            <button type="submit">Upload & Replace jrcts.db</button>
+        </form>
+
+        <br>
+
+        <!-- Tombol download -->
+        <a href="/download">
+            <button>Download Current jrcts.db</button>
+        </a>
+    ''')
+
+# Endpoint upload
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        flash('No file part')
+        return redirect('/upload')
+
+    file = request.files['file']
+    if file.filename == '':
+        flash('No file selected')
+        return redirect('/upload')
+
+    if file and allowed_file(file.filename):
+        # Simpan file langsung ke nama database utama (replace)
+        file.save(DATABASE_PATH)
+        flash(f'File successfully uploaded and replaced {DATABASE_NAME}')
+        return redirect('/upload')
+
+    flash('Invalid file type. Only .db or .sqlite allowed.')
+    return redirect('/')
+
+# Endpoint download
+@app.route('/download')
+def download_db():
+    if not os.path.exists(DATABASE_PATH):
+        return "Database not found.", 404
+    return send_file(DATABASE_PATH, as_attachment=True, download_name=DATABASE_NAME)
 
 if __name__ == '__main__':
     # app.run(debug=True)
